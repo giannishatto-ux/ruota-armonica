@@ -258,6 +258,26 @@ body.is-dragging{cursor:grabbing;-webkit-user-select:none;user-select:none}
 .bar16.on{background:var(--accent);color:var(--on-accent);transform:scale(1.04);opacity:1}
 .bar16.on .n,.bar16.on .sy,.bar16.on .cont{color:var(--on-accent)}
 .bar16.dragging{opacity:.3}
+.bar16.pick{box-shadow:inset 0 0 0 2px var(--link);background:var(--accent-tint);opacity:1}
+.bar16:not(.slot) .plus{font-size:20px;line-height:1;color:var(--muted);opacity:0;transition:opacity .2s var(--ease)}
+.bar16:not(.slot):hover .plus,.bar16.pick .plus{opacity:1}
+.b-pick{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--bg);animation:pop .3s var(--ease)}
+.band.tile .b-pick{background:var(--card-a)}
+.pk-head{display:flex;align-items:center;gap:10px}
+.pk-head .b-label{flex:1;min-width:0}
+.pk-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);letter-spacing:0}
+.pk-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px;background:var(--raised)}
+.pk-legend i.best{background:var(--accent)}
+.pk-legend i.good{box-shadow:inset 0 0 0 1.5px var(--link)}
+.pk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.pk-col{font-size:12px;color:var(--muted);text-align:center;padding:2px 0;letter-spacing:0}
+.pk{border:0;border-radius:10px;background:var(--raised);color:var(--text);min-height:40px;padding:4px 2px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .2s var(--ease),transform .15s var(--ease),box-shadow .2s var(--ease)}
+.pk:hover{background:var(--hover)}
+.pk:active{transform:scale(.94)}
+.pk.good{box-shadow:inset 0 0 0 1.5px var(--link)}
+.pk.best{background:var(--accent);color:var(--on-accent);box-shadow:none}
+.pk.best:hover{background:var(--accent);filter:brightness(1.12)}
 
 /* telefono: ogni comando accanto a ciò che controlla */
 .m-slot,.more{display:none}
@@ -598,9 +618,17 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
         <h2 class="b-title" id="h-build">Costruisci il tuo giro</h2>
         <button class="linkbtn" id="b-typical" type="button">Usa il giro tipico</button>
       </div>
-      <p class="b-hint">Tocca un accordo per ascoltarlo, trascinalo in una battuta per inserirlo. Una battuta vuota continua l'accordo prima.</p>
+      <p class="b-hint">Tocca un accordo per ascoltarlo, trascinalo in una battuta per inserirlo. Tocca una battuta vuota per scegliere fra tutti gli accordi; se la lasci vuota continua l'accordo prima.</p>
       <div class="b-label b-gridhead"><span>Il tuo giro</span><span class="b-len" id="b-len">4 battute</span></div>
       <div class="slots grid16" id="b-slots" role="list" aria-label="Il tuo giro, 16 battute"></div>
+      <div class="b-pick" id="b-pick" hidden>
+        <div class="pk-head">
+          <div class="b-label" id="b-pick-title">Scegli un accordo</div>
+          <button class="iconbtn" id="b-pick-close" type="button" aria-label="Chiudi">✕</button>
+        </div>
+        <div class="pk-legend"><span><i class="best"></i>Consigliati</span><span><i class="good"></i>Della tonalità</span><span><i></i>Altri</span></div>
+        <div class="pk-grid" id="b-pick-grid" role="group" aria-labelledby="b-pick-title"></div>
+      </div>
       <div class="b-label">Modificatori <span class="b-sub">cambiano i pad qui sotto</span></div>
       <div class="modstrip live" id="mods-giro" role="group" aria-label="Modificatori dei pad"></div>
       <div class="palette">
@@ -1930,7 +1958,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   var QWORD = {maj:"maggiore", min:"minore", dom:"di settima", dim:"diminuito"};
   var NBARS = 16;
   function emptyBars(){ var a=[]; for(var i=0;i<NBARS;i++) a.push(null); return a; }
-  var build = { bars:emptyBars(), sel:-1, bpm:96, groove:"pop" };
+  var build = { bars:emptyBars(), sel:-1, pick:-1, bpm:96, groove:"pop" };
   build.bars[0]={pc:0,q:"maj"}; build.bars[1]={pc:9,q:"min"}; build.bars[2]={pc:5,q:"maj"}; build.bars[3]={pc:7,q:"dom"};
   var MOD_IDS=["colore","sus","apri","swap","dom"];
   function cleanM(m){ var o={}, n=0; if(m) MOD_IDS.forEach(function(k){ if(m[k]){ o[k]=true; n++; } }); return n ? o : null; }
@@ -2029,8 +2057,9 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     return out;
   }
   function sameFamily(a,b){ return (a==="min"||a==="dim") === (b==="min"||b==="dim"); }
-  function bestNext(){
-    var key=keyChords(), lf=lastFilled(), last=lf>=0 ? build.bars[lf] : null;
+  function bestNext(){ var lf=lastFilled(); return bestAfter(lf>=0 ? build.bars[lf] : null); }
+  function bestAfter(last){
+    var key=keyChords();
     function degs(list){ return list.map(function(d){ return key[d]; }); }
     if(!last) return degs([0,3,4]);
     last=eff(last);
@@ -2106,8 +2135,45 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     bGrooves.appendChild(b);
   });
 
+  /* ---- battuta vuota: un tocco apre la griglia con tutti gli accordi, i consigliati colorati ---- */
+  var bPick=document.getElementById("b-pick"), bPickGrid=document.getElementById("b-pick-grid"), bPickTitle=document.getElementById("b-pick-title");
+  var PK_Q=["maj","min","dom","dim"], PK_COL={maj:"Maggiore",min:"Minore",dom:"Settima",dim:"Diminuito"};
+  function prevBefore(i){ for(var k=i-1;k>=0;k--) if(build.bars[k]) return build.bars[k]; return null; }
+  function openPick(i){ build.pick = (build.pick===i) ? -1 : i; build.sel=-1; renderBuild(); if(build.pick>=0) bPick.scrollIntoView({block:"nearest"}); }
+  function renderPick(){
+    var i=build.pick;
+    bPick.hidden = i<0;
+    if(i<0) return;
+    var prev=prevBefore(i), best=bestAfter(prev), key=keyChords();
+    bPickTitle.textContent = "Battuta "+(i+1)+": scegli un accordo"+(prev ? " · dopo "+slotName(prev) : "");
+    function has(list,pc,q){ return list.some(function(c){ return c.pc===pc && c.q===q; }); }
+    bPickGrid.textContent="";
+    PK_Q.forEach(function(q){ var h=document.createElement("div"); h.className="pk-col"; h.textContent=PK_COL[q]; bPickGrid.appendChild(h); });
+    for(var n=0;n<12;n++){
+      var pc=mod12(state.tonic+n);
+      PK_Q.forEach(function(q){
+        var c={pc:pc,q:q}, b=document.createElement("button"), isBest=has(best,pc,q), isKey=has(key,pc,q);
+        b.type="button"; b.className="pk"+(isBest?" best":(isKey?" good":""));
+        b.dataset.pc=pc; b.dataset.q=q; b.textContent=slotName(c);
+        b.setAttribute("aria-label", IT[pc]+" "+QWORD[q]+(isBest?", consigliato":(isKey?", della tonalità":""))+". Tocca per metterlo nella battuta "+(i+1)+".");
+        bPickGrid.appendChild(b);
+      });
+    }
+  }
+  bPickGrid.addEventListener("click",function(e){
+    var b=e.target.closest ? e.target.closest(".pk") : null, i=build.pick;
+    if(!b || i<0) return;
+    var c={pc:+b.dataset.pc, q:b.dataset.q};
+    build.bars[i]=c; build.pick=-1; build.sel=-1;
+    bStatus.textContent=slotName(c)+" nella battuta "+(i+1)+".";
+    renderBuild(); previewChord(c, "Battuta "+(i+1)); restartIfPlaying();
+  });
+  document.getElementById("b-pick-close").addEventListener("click",function(){ build.pick=-1; renderBuild(); });
+
   function renderBuild(){
     if(build.sel>=0 && !build.bars[build.sel]) build.sel=-1;
+    if(build.pick>=0 && build.bars[build.pick]) build.pick=-1;
+    if(build.sel>=0) build.pick=-1;
     var len=giroLength();
     bSlots.textContent="";
     for(var i=0;i<NBARS;i++){
@@ -2117,6 +2183,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       if(i>=len) cls+=" off";
       if(sl) cls+=" slot";
       if(i===build.sel) cls+=" sel";
+      if(i===build.pick) cls+=" pick";
       c.className=cls;
       if(sl){
         var ch=slotChord(sl);
@@ -2126,10 +2193,10 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       } else if(i<len){
         var prev=chordAt(i);
         c.innerHTML='<span class="n">'+(i+1)+'</span><span class="cont">↳ '+(prev?slotName(prev):"")+'</span>';
-        c.setAttribute("aria-label","Battuta "+(i+1)+": continua "+(prev?slotName(prev):"")+". Trascina qui un accordo per cambiarlo.");
+        c.setAttribute("aria-label","Battuta "+(i+1)+": continua "+(prev?slotName(prev):"")+". Tocca per scegliere un accordo, o trascinalo qui.");
       } else {
-        c.innerHTML='<span class="n">'+(i+1)+'</span>';
-        c.setAttribute("aria-label","Battuta "+(i+1)+", vuota. Trascina qui un accordo.");
+        c.innerHTML='<span class="n">'+(i+1)+'</span><span class="plus" aria-hidden="true">+</span>';
+        c.setAttribute("aria-label","Battuta "+(i+1)+", vuota. Tocca per scegliere un accordo, o trascinalo qui.");
       }
       bSlots.appendChild(c);
     }
@@ -2145,6 +2212,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     document.getElementById("b-len").textContent = len ? len+" battute" : "vuoto";
     bPlay.disabled = bRec.disabled = bMidi.disabled = !len;
     renderPalette();
+    renderPick();
     saveBuild();
     if(typeof SM!=="undefined" && SM) smpBpmChanged();
   }
@@ -2237,7 +2305,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     container.addEventListener("pointerdown",function(e){
       var el=e.target.closest ? e.target.closest(kind==="sug" ? ".sug" : ".slot") : null;
       if(el) startPress(e, el, kind);
-      else if(kind==="slot"){ var cell=e.target.closest ? e.target.closest(".bar16") : null; if(cell){ var c=chordAt(+cell.dataset.i); if(c && +cell.dataset.i<giroLength()) previewChord(c, "Battuta "+(+cell.dataset.i+1)); } }
+      else if(kind==="slot"){ var cell=e.target.closest ? e.target.closest(".bar16") : null; if(cell && live() && !(e.button>0)) openPick(+cell.dataset.i); }
     });
     container.addEventListener("pointermove", movePress);
     container.addEventListener("pointerup", endPress);
@@ -2245,6 +2313,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     /* da tastiera: Spazio ascolta, Invio aggiunge in fondo (sugli accordi del giro Invio apre la modifica) */
     container.addEventListener("keydown",function(e){
       var el=e.target.closest ? e.target.closest(kind==="sug" ? ".sug" : ".slot") : null;
+      if(!el && kind==="slot" && (e.code==="Enter" || e.code==="Space" || e.code==="NumpadEnter")){ var cl=e.target.closest ? e.target.closest(".bar16") : null; if(cl){ e.preventDefault(); openPick(+cl.dataset.i); } return; }
       if(!el || (e.code!=="Enter" && e.code!=="Space" && e.code!=="NumpadEnter")) return;
       e.preventDefault();
       if(kind==="sug"){
