@@ -261,8 +261,14 @@ body.is-dragging{cursor:grabbing;-webkit-user-select:none;user-select:none}
 .bar16.pick{box-shadow:inset 0 0 0 2px var(--link);background:var(--accent-tint);opacity:1}
 .bar16:not(.slot) .plus{font-size:20px;line-height:1;color:var(--muted);opacity:0;transition:opacity .2s var(--ease)}
 .bar16:not(.slot):hover .plus,.bar16.pick .plus{opacity:1}
-.b-pick{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--bg);animation:pop .3s var(--ease)}
-.band.tile .b-pick{background:var(--card-a)}
+.pk-back{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));
+  background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:pkFade .2s ease}
+.b-pick{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:20px;background:var(--card-b);width:100%;max-width:440px;max-height:100%;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);animation:pkIn .28s var(--ease)}
+.pk-grid{overflow-y:auto;overscroll-behavior:contain;min-height:0}
+body.pk-open{overflow:hidden}
+@keyframes pkFade{from{opacity:0}to{opacity:1}}
+@keyframes pkIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
 .pk-head{display:flex;align-items:center;gap:10px}
 .pk-head .b-label{flex:1;min-width:0}
 .pk-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);letter-spacing:0}
@@ -621,14 +627,14 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       <p class="b-hint">Tocca un accordo per ascoltarlo, trascinalo in una battuta per inserirlo. Tocca una battuta vuota per scegliere fra tutti gli accordi; se la lasci vuota continua l'accordo prima.</p>
       <div class="b-label b-gridhead"><span>Il tuo giro</span><span class="b-len" id="b-len">4 battute</span></div>
       <div class="slots grid16" id="b-slots" role="list" aria-label="Il tuo giro, 16 battute"></div>
-      <div class="b-pick" id="b-pick" hidden>
+      <div class="pk-back" id="b-pick-back" hidden><div class="b-pick" id="b-pick" role="dialog" aria-modal="true" aria-labelledby="b-pick-title">
         <div class="pk-head">
           <div class="b-label" id="b-pick-title">Scegli un accordo</div>
           <button class="iconbtn" id="b-pick-close" type="button" aria-label="Chiudi">✕</button>
         </div>
         <div class="pk-legend"><span><i class="best"></i>Consigliati</span><span><i class="good"></i>Della tonalità</span><span><i></i>Altri</span></div>
         <div class="pk-grid" id="b-pick-grid" role="group" aria-labelledby="b-pick-title"></div>
-      </div>
+      </div></div>
       <div class="b-label">Modificatori <span class="b-sub">cambiano i pad qui sotto</span></div>
       <div class="modstrip live" id="mods-giro" role="group" aria-label="Modificatori dei pad"></div>
       <div class="palette">
@@ -2136,14 +2142,22 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   });
 
   /* ---- battuta vuota: un tocco apre la griglia con tutti gli accordi, i consigliati colorati ---- */
-  var bPick=document.getElementById("b-pick"), bPickGrid=document.getElementById("b-pick-grid"), bPickTitle=document.getElementById("b-pick-title");
+  var bPickBack=document.getElementById("b-pick-back"), bPick=document.getElementById("b-pick"), bPickGrid=document.getElementById("b-pick-grid"), bPickTitle=document.getElementById("b-pick-title");
   var PK_Q=["maj","min","dom","dim"], PK_COL={maj:"Maggiore",min:"Minore",dom:"Settima",dim:"Diminuito"};
   function prevBefore(i){ for(var k=i-1;k>=0;k--) if(build.bars[k]) return build.bars[k]; return null; }
-  function openPick(i){ build.pick = (build.pick===i) ? -1 : i; build.sel=-1; renderBuild(); if(build.pick>=0) bPick.scrollIntoView({block:"nearest"}); }
+  document.body.appendChild(bPickBack);
+  var pickFrom=null;
+  function openPick(i){ pickFrom=document.activeElement; build.pick=i; build.sel=-1; renderBuild(); var f=bPickGrid.querySelector(".pk.best")||bPickGrid.querySelector(".pk"); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  function closePick(){ if(build.pick<0) return; build.pick=-1; renderBuild(); if(pickFrom && pickFrom.focus) try{ pickFrom.focus({preventScroll:true}); }catch(e){} }
+  bPickBack.addEventListener("click",function(e){ if(e.target===bPickBack) closePick(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape" && build.pick>=0){ e.preventDefault(); closePick(); } });
   function renderPick(){
     var i=build.pick;
-    bPick.hidden = i<0;
+    var was=!bPickBack.hidden;
+    bPickBack.hidden = i<0;
+    document.body.classList.toggle("pk-open", i>=0);
     if(i<0) return;
+    if(!was) bPickGrid.scrollTop=0;
     var prev=prevBefore(i), best=bestAfter(prev), key=keyChords();
     bPickTitle.textContent = "Battuta "+(i+1)+": scegli un accordo"+(prev ? " · dopo "+slotName(prev) : "");
     function has(list,pc,q){ return list.some(function(c){ return c.pc===pc && c.q===q; }); }
@@ -2168,7 +2182,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     bStatus.textContent=slotName(c)+" nella battuta "+(i+1)+".";
     renderBuild(); previewChord(c, "Battuta "+(i+1)); restartIfPlaying();
   });
-  document.getElementById("b-pick-close").addEventListener("click",function(){ build.pick=-1; renderBuild(); });
+  document.getElementById("b-pick-close").addEventListener("click",closePick);
 
   function renderBuild(){
     if(build.sel>=0 && !build.bars[build.sel]) build.sel=-1;
@@ -2305,7 +2319,7 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     container.addEventListener("pointerdown",function(e){
       var el=e.target.closest ? e.target.closest(kind==="sug" ? ".sug" : ".slot") : null;
       if(el) startPress(e, el, kind);
-      else if(kind==="slot"){ var cell=e.target.closest ? e.target.closest(".bar16") : null; if(cell && live() && !(e.button>0)) openPick(+cell.dataset.i); }
+      
     });
     container.addEventListener("pointermove", movePress);
     container.addEventListener("pointerup", endPress);
@@ -2327,6 +2341,12 @@ html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   }
   [bNext,bKey,bSpecial].forEach(function(c){ bindDrag(c,"sug"); });
   bindDrag(bSlots,"slot");
+  /* tocco completato su una battuta vuota: si apre la finestra degli accordi */
+  bSlots.addEventListener("click",function(e){
+    var cell=e.target.closest ? e.target.closest(".bar16") : null;
+    if(!cell || !live() || cell.classList.contains("slot") || drag) return;
+    openPick(+cell.dataset.i);
+  });
 
   /* giro tipico del genere scelto */
   var GENRE_GROOVE = {libero:"pop", bossa:"bossa", jazz:"swing", pop:"pop", soul:"slow", gospel:"slow", blues:"shuffle", rock:"eighths", funk:"funk", lofi:"lofi", cinema:"pad", reggae:"skank", latin:"clave"};
