@@ -571,6 +571,16 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   .blk .nm{font-size:14px}
 }
 
+/* batteria */
+.drum-sec{display:flex;flex-direction:column;gap:10px}
+.kitrow .chip{min-height:34px;padding:6px 14px;font-size:14px}
+#d-opts{display:flex;flex-direction:column;gap:10px}
+.dvar button{display:flex;flex-direction:column;align-items:center;line-height:1.2;padding:6px 4px}
+.dvar button b{font-size:13px;font-weight:600}
+.dvar button small{font-size:11px;color:var(--muted)}
+.d-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.switch.small{font-size:15px;gap:10px}
+.lib-tx small.lic{color:var(--link)}
 /* telefono: le finestre diventano fogli che salgono dal basso */
 @media (max-width:640px){
   .scrim{align-items:flex-end;padding:calc(10px + env(safe-area-inset-top, 0px)) 0 0}
@@ -701,7 +711,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
       <div class="pane" data-pane="snd" role="tabpanel" hidden>
         <div class="soundlist" id="sounds" role="group" aria-label="Suono"></div>
         <p class="caption" id="sndstatus">Pianoforte e chitarra classica si caricano al primo tocco.</p>
-        <p class="credit">Campioni di pianoforte e chitarra classica: <a href="https://github.com/nbrosowsky/tonejs-instruments">tonejs-instruments</a> di Nicholaus P. Brosowsky, licenza CC BY 3.0.</p>
+        <p class="credit">Pianoforte e chitarra classica: <a href="https://github.com/nbrosowsky/tonejs-instruments">tonejs-instruments</a> di Nicholaus P. Brosowsky, CC BY 3.0. Piano elettrico, kalimba, marimba, arpa e batterie: <a href="https://github.com/sgossner/VCSL">Versilian Community Sample Library</a>, CC0.</p>
       </div>
     </div>
   </section>
@@ -837,6 +847,19 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
         <div class="b-label" id="h-groove">Groove</div>
         <div class="grooves" id="b-grooves" role="group" aria-labelledby="h-groove"></div>
       </div>
+      <div class="drum-sec">
+        <div class="b-label" id="h-drums">Batteria <span class="b-sub">groove suonati da batteristi veri</span></div>
+        <div class="chips kitrow" id="d-kits" role="group" aria-labelledby="h-drums"></div>
+        <div id="d-opts">
+          <div class="seg2 wide dvar" id="d-var" role="group" aria-label="Batterista"></div>
+          <div class="d-row">
+            <label class="switch small">Fill a fine giro<input type="checkbox" id="d-fill" name="d-fill" checked></label>
+            <button class="linkbtn" id="d-tempo" type="button"></button>
+          </div>
+          <div class="b-row"><label class="b-label" for="d-vol">Volume batteria</label><input type="range" id="d-vol" name="d-vol" min="0" max="100" value="80"></div>
+          <p class="credit">Groove dal <a href="https://magenta.tensorflow.org/datasets/groove">Groove MIDI Dataset</a> di Google Magenta, CC BY 4.0. Suoni della Versilian Community Sample Library, CC0.</p>
+        </div>
+      </div>
       <div class="energy" aria-live="polite">
         <div class="e-top"><span class="b-label">Tocco</span><span class="e-word" id="e-word">Deciso</span></div>
         <div class="e-bar" aria-hidden="true"><i id="e-fill"></i></div>
@@ -900,6 +923,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
         <button class="tab on" data-tab="rec" id="tab-rec" type="button" role="tab" aria-selected="true" aria-controls="panel-rec">Registrazione</button>
         <button class="tab" data-tab="smp" id="tab-smp" type="button" role="tab" aria-selected="false" aria-controls="panel-smp">Sample</button>
         <button class="tab" data-tab="midi" id="tab-midi" type="button" role="tab" aria-selected="false" aria-controls="panel-midi">MIDI in</button>
+        <button class="tab" data-tab="pack" id="tab-pack" type="button" role="tab" aria-selected="false" aria-controls="panel-pack">Pacchetti</button>
       </div>
     </div>
     <div class="win-body">
@@ -957,6 +981,11 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
         </div>
       </div>
 
+      <div class="studio-panel" id="panel-pack" role="tabpanel" aria-labelledby="tab-pack" hidden>
+        <p class="lead">I suoni e i groove della Ruota, da portare nella tua DAW. Ogni pacchetto è uno zip con la sua licenza dentro.</p>
+        <div class="lib-list" id="pack-list"></div>
+        <p class="statusbox" id="pack-status" aria-live="polite"></p>
+      </div>
       <div class="studio-panel" id="panel-midi" role="tabpanel" aria-labelledby="tab-midi" hidden>
         <div class="row">
           <button class="btn" id="midiconnect" type="button">Collega strumento MIDI</button>
@@ -1366,10 +1395,14 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     rhodes:{label:"Rhodes", fm:{ratio:2.01,index:3.2,decay:0.6}, cutoff:3600, fe:0.45, fd:1.2, a:0.004, d:1.1, s:0.12, r:0.5, peak:0.5},
     pad:{label:"Pad", oscs:[{type:"sawtooth",detune:-7,gain:.35},{type:"sawtooth",detune:7,gain:.35},{type:"triangle",detune:0,gain:.25}], cutoff:1500, fe:1.5, fd:1.6, a:0.45, d:1.4, s:0.85, r:1.0, peak:0.34},
     archi:{label:"Archi", oscs:[{type:"sawtooth",detune:-4,gain:.32},{type:"sawtooth",detune:5,gain:.32}], cutoff:2200, fe:1.2, fd:1.0, a:0.22, d:.9, s:0.8, r:0.55, peak:0.33},
+    epiano:{label:"Piano elettrico", sampled:"epiano"},
+    kalimba:{label:"Kalimba", sampled:"kalimba"},
+    marimba:{label:"Marimba", sampled:"marimba"},
+    arpa:{label:"Arpa", sampled:"harp"},
     pluck:{label:"Pluck", oscs:[{type:"triangle",detune:0,gain:.55},{type:"square",detune:4,gain:.18}], cutoff:4200, fe:0.12, fd:0.5, a:0.003, d:0.28, s:0.0, r:0.22, peak:0.5},
     organo:{label:"Organo", oscs:[{type:"sine",detune:0,gain:.4},{type:"sine",detune:1202,gain:.22},{type:"sine",detune:1902,gain:.16},{type:"sine",detune:2402,gain:.12}], cutoff:5200, fe:1, fd:.3, a:0.02, d:.2, s:0.95, r:0.14, peak:0.33}
   };
-  var SOUND_KEYS = ["piano","chitarra","rhodes","pad","archi","organo"];
+  var SOUND_KEYS = ["piano","chitarra","epiano","rhodes","kalimba","marimba","arpa","pad","archi","organo"];
 
   var sample = { buffer:null, name:"", start:0, end:0, root:60, loop:false, atk:0.02, rel:0.25, gain:1 };
 
@@ -1378,7 +1411,16 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     piano:{dir:"samples/piano/", gain:0.55, rel:0.35, buf:{}, keys:[], ready:false, promise:null,
       files:["C2","Ds2","Fs2","A2","C3","Ds3","Fs3","A3","C4","Ds4","Fs4","A4","C5","Ds5","Fs5","A5","C6","Ds6","Fs6","A6","C7"]},
     guitar:{dir:"samples/guitar/", gain:0.8, rel:0.3, buf:{}, keys:[], ready:false, promise:null,
-      files:["E2","Fs2","Gs2","A2","B1","B2","D2","D3","Cs3","E3","Fs3","G3","A3","B3","Cs4","Ds4","E4","Fs4","Gs4","A4","B4","Cs5","D5","E5","Fs5","G5","Gs5","A5","As5"]}
+      files:["E2","Fs2","Gs2","A2","B1","B2","D2","D3","Cs3","E3","Fs3","G3","A3","B3","Cs4","Ds4","E4","Fs4","Gs4","A4","B4","Cs5","D5","E5","Fs5","G5","Gs5","A5","As5"]},
+    /* Versilian Community Sample Library, CC0 */
+    epiano:{dir:"samples/epiano/", gain:0.62, rel:0.45, buf:{}, keys:[], ready:false, promise:null,
+      files:["C1","E1","Gs1","C2","E2","Gs2","C3","E3","Gs3","C4","E4","Gs4","C5","E5","Gs5","C6"]},
+    kalimba:{dir:"samples/kalimba/", gain:0.7, rel:0.6, buf:{}, keys:[], ready:false, promise:null,
+      files:["Gs2","As2","Ds3","G3","Cs4","F4","Fs4","As4","D5","G5","Fs5","B5"]},
+    marimba:{dir:"samples/marimba/", gain:0.75, rel:0.5, buf:{}, keys:[], ready:false, promise:null,
+      files:["F2","C3","G3","B3","F4","C5","G5","B5","F6","C7"]},
+    harp:{dir:"samples/harp/", gain:0.62, rel:0.7, buf:{}, keys:[], ready:false, promise:null,
+      files:["D2","F2","A2","E3","G3","B3","D4","F4","A4","C5","E5","G5","B5","D6","F6","A6"]}
   };
   function noteMidi(n){
     var m = n.match(/^([A-G])(s?)(\d)$/);
@@ -1430,10 +1472,11 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   function markInstStatus(){
     var el = document.getElementById("sndstatus");
     if(!el) return;
-    var loading = (INST.piano.promise && !INST.piano.ready) || (INST.guitar.promise && !INST.guitar.ready);
-    if(INST.piano.ready && INST.guitar.ready) el.textContent = "Pianoforte e chitarra classica pronti.";
-    else if(loading) el.textContent = "Carico pianoforte e chitarra classica…";
-    else el.textContent = "Pianoforte e chitarra classica si caricano al primo tocco.";
+    var P=PRESETS[state.suono], I=(P && P.sampled) ? INST[P.sampled] : null;
+    if(I && I.promise && !I.ready) el.textContent = "Carico "+P.label.toLowerCase()+"…";
+    else if(I && I.ready) el.textContent = P.label+" pronto.";
+    else if(I) el.textContent = P.label+" si carica al primo tocco.";
+    else el.textContent = "I suoni registrati si caricano al primo tocco.";
   }
 
   /* ---- iPhone: sblocca l'audio al primo gesto, anche con l'interruttore silenzioso ---- */
@@ -1491,6 +1534,8 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
         mix.connect(recNode); recNode.connect(sink); sink.connect(ac.destination);
       }
       loadInst("piano"); loadInst("guitar");
+      var cp=PRESETS[state.suono]; if(cp && cp.sampled && INST[cp.sampled]) loadInst(cp.sampled);
+      preloadDrums();
     }
     if(ac.state === "suspended" || ac.state === "interrupted"){ try{ ac.resume(); }catch(e){} }
     return true;
@@ -1999,6 +2044,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     if(seq.pending.length>400) seq.pending.splice(0,200);
   }
   function seqStop(){
+    stopDrums();
     if(seq.timer) clearInterval(seq.timer);
     seq.timer=null;
     seq.pending.forEach(clearTimeout); seq.pending=[];
@@ -2013,7 +2059,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     if(!ensureAudio()) return;
     seq.sound=null;
     for(var k in o) seq[k]=o[k];
-    seq.on=true; seq.step=0; seq.bar=o.startBar||0; seq.next=ac.currentTime+0.12; seq.cur=null; state.prev=null;
+    seq.drums=!!o.drums; seq.wrapped=false; seq.on=true; seq.step=0; seq.bar=o.startBar||0; seq.next=ac.currentTime+0.12; seq.cur=null; state.prev=null;
     seq.timer=setInterval(seqPump,25);
     seqPump();
   }
@@ -2044,12 +2090,14 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     while(seq.next < ac.currentTime+0.14){
       if(seq.step===0){
         if(seq.bar>=seq.items.length){
-          if(seq.loop) seq.bar=0;
+          if(seq.loop){ seq.bar=0; seq.wrapped=true; }
           else { later(seq.next, seqStop); clearInterval(seq.timer); seq.timer=null; return; }
         }
         var ch=seq.items[seq.bar].ch;
         seq.cur={ch:ch, n:chordNotes(ch,{},seq.sound)};
         (function(b,c){ later(seq.next, function(){ if(seq.onBar) seq.onBar(b,c); }); })(seq.bar, ch);
+        if(seq.drums) scheduleDrumBar(seq.next, seq.bar, seq.items.length, !!seq.wrapped);
+        seq.wrapped=false;
       } else if(seq.step===r.res/2 && seq.items[seq.bar] && seq.items[seq.bar].ch2){
         var ch2=seq.items[seq.bar].ch2;
         seq.cur={ch:ch2, n:chordNotes(ch2,{},seq.sound)};
@@ -2142,7 +2190,8 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   function round4(n){ return n<=0 ? 0 : Math.min(NBARS, Math.ceil(n/4)*4); }
 
   var build = { parts:{A:emptyBars(),B:emptyBars(),C:emptyBars()}, lens:{A:4,B:0,C:0}, form:["A"], cur:"A", song:false,
-                loop:null, loopOn:false, name:"", sel:-1, selHalf:0, pick:-1, pickHalf:0, bpm:96, groove:"pop", bars:null };
+                loop:null, loopOn:false, name:"", sel:-1, selHalf:0, pick:-1, pickHalf:0, bpm:96, groove:"pop", bars:null,
+                kit:"acu", dv:0, dfill:true, dvol:0.8 };
   build.parts.A[0]={pc:0,q:"maj"}; build.parts.A[1]={pc:9,q:"min"}; build.parts.A[2]={pc:5,q:"maj"}; build.parts.A[3]={pc:7,q:"dom"};
   function syncBars(){ build.bars = build.parts[build.cur]; }
   function loadState(d){
@@ -2159,10 +2208,14 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     if(d.groove && GROOVE_RECIPE[d.groove]) build.groove=d.groove;
     if(d.loop && typeof d.loop.a==="number") build.loop={a:clamp(d.loop.a|0,0,15), b:clamp(d.loop.b|0,0,15)};
     build.loopOn=!!d.loopOn && !!build.loop; build.song=!!d.song;
+    if(d.kit && ["none","acu","perc","m808","m909"].indexOf(d.kit)>=0) build.kit=d.kit;
+    if(typeof d.dv==="number") build.dv=clamp(d.dv|0,0,2);
+    if(typeof d.dfill==="boolean") build.dfill=d.dfill;
+    if(typeof d.dvol==="number") build.dvol=clamp(d.dvol,0,1);
   }
   try{ var savedB = JSON.parse(localStorage.getItem("ruota-giro")||"null"); if(savedB) loadState(savedB); }catch(e){}
   syncBars();
-  function stateData(){ return {v:2, parts:build.parts, lens:build.lens, form:build.form, cur:build.cur, name:build.name, bpm:build.bpm, groove:build.groove, loop:build.loop, loopOn:build.loopOn, song:build.song}; }
+  function stateData(){ return {v:2, parts:build.parts, lens:build.lens, form:build.form, cur:build.cur, name:build.name, bpm:build.bpm, groove:build.groove, loop:build.loop, loopOn:build.loopOn, song:build.song, kit:build.kit, dv:build.dv, dfill:build.dfill, dvol:build.dvol}; }
   function saveBuild(){ try{ localStorage.setItem("ruota-giro", JSON.stringify(stateData())); }catch(e){} }
 
   /* il giro dura quanto deciso (allungando l'ultimo accordo), mai meno dell'ultimo accordo scritto */
@@ -2630,6 +2683,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     document.getElementById("h-build").textContent = build.name || "Il tuo giro";
     renderPalette();
     renderPick();
+    renderDrums();
     if(!restoring){ var snap=snapshot(); if(lastSnap!==null && snap!==lastSnap){ undoStack.push(lastSnap); if(undoStack.length>120) undoStack.shift(); redoStack=[]; } lastSnap=snap; }
     bUndo.disabled=!undoStack.length; bRedo.disabled=!redoStack.length;
     saveBuild();
@@ -2878,7 +2932,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   }
   function startBuild(){
     var items=buildItems(); if(!items.length) return;
-    seqStart({owner:"build", items:items, rhythm:build.groove, bpm:build.bpm, loop:true, chords:true, bass:true, click:false,
+    seqStart({owner:"build", items:items, rhythm:build.groove, bpm:build.bpm, loop:true, chords:true, bass:true, click:false, drums:true,
       onBar:function(b,ch){
         var it=seq.items[b]; if(!it) return;
         lightBlock(it,false);
@@ -2949,6 +3003,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
           notes.push({n:m, s:t+s*stepDur, e:t+s*stepDur+stepDur*1.8, v:92});
         });
       }
+      if(build.kit!=="none") drumBarEvents(bar, items.length, false).forEach(function(d){ var at=t+d[0]*(60/bpm); notes.push({n:GMNOTE[d[1]], s:at, e:at+0.12, v:d[2], ch:9}); });
       t+=stepDur*r.res;
     });
     state.prev=savedPrev;
@@ -3054,7 +3109,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
       var saved=build.parts[build.cur]; build.parts[build.cur]=rhProps[k].bars; syncBars();
       var items=partItems(build.cur); build.parts[build.cur]=saved; syncBars();
       rhAudition=k;
-      seqStart({owner:"rh", items:items, rhythm:build.groove, bpm:build.bpm, loop:true, chords:true, bass:true, click:false,
+      seqStart({owner:"rh", items:items, rhythm:build.groove, bpm:build.bpm, loop:true, chords:true, bass:true, click:false, drums:true,
         onBar:function(b,ch){ var it=seq.items[b]; if(it) showChord("Variante, battuta "+(it.i+1), slotName(it.c), ch); markRoot(mod12(ch.root)); },
         onHalf:function(b,ch){ var it=seq.items[b]; if(it) showChord("Variante, battuta "+(it.i+1)+" ½", slotName(it.c2), ch); markRoot(mod12(ch.root)); },
         onStop:function(){ if(rhAudition>=0){ rhAudition=-1; renderRh(); } }});
@@ -3161,6 +3216,270 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   }
   function keyLabel(){ return IT[state.tonic]+" "+SCALES[state.scale].mus; }
 
+
+  /* ================= batteria: groove di batteristi veri, kit campionati e drum machine ================= */
+  /* groove dal Groove MIDI Dataset (Google Magenta, CC BY 4.0): [battito, pezzo, velocità] */
+  var DRUMPAT = {"pop":{"v":[{"d":8,"st":"pop-groove7","bpm":138,"e":[0.01,"k",76,0.02,"h",127,0.506,"h",51,0.983,"s",127,0.987,"h",127,1.468,"h",73,1.981,"h",127,1.981,"k",72,2.462,"h",76,2.972,"k",76,2.998,"s",126,3.0,"h",127,3.529,"h",54,3.985,"k",84,3.993,"h",127,4.47,"h",77,5.012,"s",127,5.02,"h",127,5.506,"h",57,6.01,"h",113,6.491,"k",77,6.514,"h",61,7.006,"s",127,7.018,"h",127,7.5,"h",64]},{"d":7,"st":"pop","bpm":132,"e":[0.008,"h",105,0.016,"k",40,0.483,"h",32,0.518,"k",48,0.993,"s",127,1.025,"h",127,1.525,"k",46,2.005,"h",127,2.495,"k",47,2.505,"h",16,2.995,"s",127,3.034,"h",127,3.989,"h",127,4.016,"k",45,4.492,"h",9,4.498,"k",49,4.978,"s",127,5.005,"h",127,5.487,"h",25,5.511,"k",47,5.984,"h",127,6.478,"h",15,6.482,"k",41,6.966,"s",127,7.014,"h",127,7.458,"h",21]},{"d":7,"st":"pop-groove7","bpm":138,"e":[0.504,"h",51,1.004,"s",107,1.033,"h",127,1.504,"h",43,2.01,"k",37,2.018,"h",127,2.483,"h",47,2.985,"s",105,2.996,"h",123,3.016,"k",34,3.464,"h",42,3.987,"h",127,4.006,"k",34,4.481,"h",35,5.002,"s",120,5.027,"h",127,5.508,"h",48,6.021,"h",127,6.473,"k",36,6.483,"h",53,6.996,"s",114,7.0,"h",127,7.456,"h",57,7.968,"h",127,7.977,"k",37]}],"f":[0.102,"t3",77,0.3,"k",37,0.435,"s",41,0.623,"t2",57,0.798,"k",34,0.948,"t1",93,1.135,"s",35,1.456,"s",65,1.625,"s",89,1.794,"s",118,1.956,"s",127,2.119,"x",83,2.287,"t1",65,2.465,"s",45,2.604,"s",79,2.769,"s",96,2.942,"s",115,3.102,"t1",78,3.271,"t2",81,3.465,"t2",77,3.625,"t3",77,3.817,"t3",66]},"bossa":{"v":[{"d":1,"st":"latin-samba","bpm":116,"e":[0.024,"d",54,0.113,"s",16,0.192,"s",16,0.234,"d",49,0.278,"s",11,0.37,"s",7,0.455,"s",5,0.501,"p",95,0.511,"d",67,0.713,"k",25,0.747,"s",47,0.999,"k",25,1.038,"d",48,1.263,"d",51,1.463,"p",77,1.499,"d",67,1.678,"k",24,1.711,"s",21,1.972,"k",29,1.988,"s",29,1.997,"d",54,2.084,"s",25,2.165,"s",21,2.207,"d",48,2.24,"s",13,2.324,"s",10,2.451,"d",58,2.451,"p",85,2.692,"k",19,2.692,"s",48,2.965,"d",47,3.009,"k",33,3.174,"d",46,3.422,"d",63,3.449,"p",80,3.638,"k",29,3.682,"s",13,3.984,"d",54,3.992,"k",35,3.995,"s",34,4.086,"s",32,4.167,"s",23,4.22,"d",44,4.267,"s",11,4.374,"s",12,4.467,"p",72,4.474,"d",74,4.692,"k",22,4.755,"s",51,4.822,"s",38,4.999,"k",33,5.036,"d",46,5.263,"d",42,5.486,"p",95,5.492,"d",69,5.694,"s",19,5.707,"k",22,6.011,"k",33,6.013,"s",33,6.028,"d",57,6.084,"s",28,6.145,"s",28,6.205,"s",22,6.255,"d",44,6.374,"s",8,6.488,"s",5,6.513,"d",65,6.513,"p",87,6.742,"k",28,6.745,"s",54,7.04,"k",34,7.049,"d",51,7.278,"d",41,7.517,"p",95,7.522,"d",74,7.73,"k",28,7.757,"s",21]},{"d":5,"st":"latin-brazilian-bossa","bpm":127,"e":[0.013,"d",46,0.031,"k",26,0.138,"k",9,0.515,"d",49,0.942,"p",70,0.994,"x",18,0.998,"d",66,0.998,"x",45,1.473,"k",25,1.487,"d",40,1.581,"k",10,1.94,"p",30,1.958,"s",5,1.971,"x",37,1.985,"d",60,2.002,"k",25,2.108,"k",9,2.49,"d",42,2.925,"p",80,2.975,"s",14,3.004,"d",59,3.454,"k",25,3.492,"d",46,3.565,"k",11,3.933,"p",20,3.992,"k",29,3.998,"d",57,4.104,"k",9,4.49,"s",12,4.494,"d",62,4.933,"p",82,4.985,"x",32,5.006,"d",51,5.49,"k",28,5.498,"d",43,5.602,"k",11,6.004,"d",46,6.023,"k",27,6.133,"k",9,6.49,"t3",89,6.498,"d",83,6.919,"p",75,6.981,"d",38,7.467,"k",27,7.475,"d",44,7.577,"k",11,7.952,"d",51]},{"d":5,"st":"latin-brazilian-samba","bpm":110,"e":[0.014,"s",35,0.202,"s",57,0.45,"s",59,0.481,"p",67,0.704,"s",119,0.708,"k",22,0.991,"s",43,1.018,"k",37,1.218,"s",62,1.475,"s",83,1.518,"p",67,1.71,"k",22,1.718,"s",52,2.0,"s",109,2.027,"k",36,2.285,"s",45,2.418,"s",17,2.489,"s",66,2.522,"p",62,2.727,"k",24,2.727,"s",74,3.0,"s",54,3.041,"k",39,3.245,"s",125,3.35,"s",69,3.456,"s",60,3.516,"p",52,3.556,"s",46,3.681,"s",29,3.775,"k",22,3.833,"s",46,3.975,"s",26,4.033,"x",88,4.062,"k",33,4.266,"s",60,4.52,"s",44,4.541,"p",62,4.762,"s",126,4.766,"k",27,5.006,"s",45,5.068,"k",33,5.137,"s",40,5.252,"s",21,5.268,"s",127,5.354,"s",99,5.45,"s",78,5.535,"p",67,5.548,"s",54,5.656,"s",40,5.693,"s",38,5.8,"k",15,5.841,"s",41,5.964,"s",35,6.048,"s",59,6.079,"k",34,6.302,"s",107,6.381,"s",88,6.481,"s",55,6.566,"p",57,6.606,"s",46,6.725,"s",43,6.816,"k",17,6.881,"s",39,6.989,"x",34,7.064,"s",88,7.085,"k",35,7.335,"s",117,7.429,"s",86,7.533,"s",55,7.543,"p",55,7.639,"s",44,7.71,"s",42,7.789,"k",16,7.881,"s",41]}],"f":[0.0,"p",17,0.04,"s",28,0.198,"s",42,0.269,"s",43,0.321,"s",45,0.412,"s",37,0.521,"s",30,0.608,"s",27,0.704,"s",59,0.956,"s",41,0.969,"p",35,1.208,"s",39,1.285,"s",41,1.348,"s",47,1.435,"s",22,1.519,"s",27,1.59,"s",20,1.696,"s",58,1.954,"s",39,1.962,"p",37,2.175,"s",40,2.208,"s",50,2.335,"s",30,2.429,"s",26,2.51,"s",27,2.594,"s",16,2.663,"s",61,2.938,"s",67,2.956,"p",40,3.435,"t3",103]},"swing":{"v":[{"d":1,"st":"jazz","bpm":125,"e":[0.838,"p",100,0.882,"d",101,1.619,"d",84,1.667,"s",51,1.786,"p",37,1.865,"d",99,2.834,"p",105,2.884,"d",117,3.642,"d",98,3.642,"s",37,3.846,"k",23,3.855,"d",97,3.869,"p",30,4.704,"s",8,4.865,"p",112,4.875,"d",112,5.588,"k",45,5.598,"d",109,5.823,"p",30,5.846,"d",60,6.869,"d",122,6.884,"p",112,7.619,"d",75,7.859,"d",51,7.865,"p",32]},{"d":10,"st":"jazz-swing","bpm":110,"e":[0.033,"k",77,0.527,"o",127,0.531,"k",77,0.983,"p",57,1.056,"s",127,1.55,"o",127,1.862,"s",62,1.923,"p",57,2.01,"k",67,2.289,"s",40,2.512,"k",86,2.523,"o",127,2.971,"p",55,3.046,"s",127,3.546,"o",127,3.808,"s",69,3.937,"p",55,3.989,"k",67,4.01,"h",28,4.271,"s",43,4.498,"o",111,4.506,"k",78,4.956,"p",55,5.037,"s",127,5.55,"o",127,5.85,"s",82,5.917,"p",60,6.012,"k",73,6.027,"h",34,6.323,"s",51,6.535,"o",93,6.544,"k",77,6.956,"p",57,7.046,"s",127,7.533,"o",101,7.935,"p",57]},{"d":1,"st":"jazz-mediumfast","bpm":180,"e":[0.002,"d",67,1.004,"p",87,1.027,"d",104,1.604,"p",17,1.675,"d",66,2.023,"d",64,2.958,"p",92,3.004,"d",93,3.662,"d",63,3.985,"d",66,4.562,"s",33,4.875,"p",97,4.921,"d",77,4.929,"s",30,5.502,"k",36,5.537,"d",62,5.877,"t1",35,5.879,"d",70,6.1,"p",17,6.477,"t1",40,6.854,"p",90,6.881,"d",84,6.908,"k",38,7.515,"d",61,7.515,"s",33,7.867,"d",61,7.919,"s",38]}],"f":[0.037,"p",30,0.09,"s",31,0.119,"t3",40,0.379,"s",30,0.404,"t3",37,0.69,"s",27,0.71,"t3",40,0.992,"p",47,1.01,"s",36,1.023,"t3",48,1.331,"s",35,1.346,"t3",48,1.648,"s",40,1.675,"t3",51,1.933,"p",55,1.975,"s",51,1.983,"t3",63,2.275,"s",44,2.312,"t3",55,2.585,"s",45,2.604,"t3",57,2.873,"p",72,2.919,"t3",93,2.921,"s",74,3.573,"t3",96,3.606,"s",90]},"slow":{"v":[{"d":8,"st":"soul-groove3","bpm":86,"e":[0.0,"h",109,0.042,"h",89,0.294,"h",77,0.508,"h",91,0.754,"h",70,0.773,"k",50,1.004,"s",122,1.008,"h",83,1.275,"h",78,1.504,"h",79,1.752,"h",90,1.756,"s",109,1.996,"h",83,2.254,"h",86,2.279,"k",43,2.473,"k",69,2.488,"h",87,2.748,"h",55,2.996,"h",91,3.0,"s",108,3.252,"h",80,3.269,"k",62,3.504,"h",96,3.748,"h",86,3.773,"k",43,3.979,"k",77,3.998,"h",86,4.248,"h",73,4.485,"h",98,4.731,"h",73,4.754,"k",51,4.977,"s",116,4.981,"h",104,5.244,"h",85,5.479,"h",90,5.742,"h",73,5.754,"s",111,5.996,"h",99,6.25,"h",77,6.269,"k",45,6.471,"k",72,6.485,"h",89,6.763,"h",56,6.996,"s",127,7.002,"h",123,7.26,"h",71,7.265,"k",58,7.508,"h",106,7.769,"h",79,7.773,"k",40,7.979,"k",74]},{"d":8,"st":"soul-groove4","bpm":80,"e":[0.005,"k",67,0.467,"h",80,0.988,"s",127,1.0,"h",95,1.507,"h",95,1.765,"h",127,2.0,"k",61,2.263,"h",66,2.505,"h",105,2.998,"s",127,3.011,"h",127,3.519,"h",127,3.757,"h",100,4.002,"k",57,4.011,"h",102,4.496,"h",84,4.98,"s",119,4.994,"h",116,5.496,"h",98,5.752,"h",120,5.996,"k",60,6.257,"h",73,6.498,"h",111,6.988,"s",119,6.996,"h",108,7.513,"h",95,7.746,"h",100,7.998,"h",127]},{"d":7,"st":"soul-groove4","bpm":80,"e":[0.007,"h",66,0.007,"k",42,0.04,"h",64,0.044,"k",47,0.519,"h",94,1.017,"s",111,1.534,"h",79,1.78,"h",73,2.023,"k",42,2.275,"h",53,2.511,"h",125,2.984,"s",105,3.5,"h",66,3.75,"h",78,4.017,"k",45,4.465,"h",82,4.975,"s",100,5.484,"h",73,5.732,"h",77,5.98,"k",45,6.228,"h",66,6.48,"h",84,6.99,"s",104,7.486,"o",116,7.986,"p",77]}],"f":[0.05,"t1",93,0.269,"t2",73,0.412,"t2",73,0.583,"t2",90,0.744,"t2",97,0.898,"t2",127,1.15,"t2",61,1.306,"t2",39,1.465,"t2",75,1.633,"t2",88,1.825,"t2",100,1.971,"t2",96,2.177,"t2",68,2.425,"t3",50,2.579,"t3",80,2.729,"t3",85,2.896,"t3",93,3.04,"t3",127,3.267,"t3",101,3.423,"t3",35,3.59,"t3",98,3.779,"t3",58,3.894,"t3",43,3.919,"k",127]},"shuffle":{"v":[{"d":5,"st":"neworleans-shuffle","bpm":104,"e":[0.159,"s",63,0.301,"p",62,0.338,"s",127,0.636,"k",29,0.643,"s",43,0.861,"s",30,1.18,"s",36,1.353,"s",112,1.355,"p",60,1.372,"k",46,1.48,"k",12,1.53,"k",11,1.638,"s",46,1.872,"s",45,1.884,"k",46,1.993,"k",14,2.182,"s",40,2.345,"p",50,2.37,"s",117,2.628,"k",35,2.645,"s",45,2.895,"s",25,3.19,"s",47,3.349,"s",116,3.359,"p",62,3.378,"k",43,3.482,"k",13,3.632,"s",41,3.876,"k",45,3.878,"s",30,3.999,"k",11,4.165,"s",40,4.334,"s",107,4.353,"p",55,4.613,"k",35,4.622,"s",41,4.849,"s",29,5.128,"s",53,5.245,"s",47,5.332,"k",43,5.332,"s",127,5.347,"p",60,5.628,"s",40,5.855,"s",24,5.861,"k",45,5.976,"k",10,6.138,"s",46,6.328,"s",127,6.347,"p",60,6.591,"k",34,6.622,"s",43,6.874,"s",47,7.12,"s",96,7.316,"t3",127,7.349,"p",55,7.353,"k",49,7.47,"k",11,7.518,"k",11,7.634,"s",41,7.851,"s",47,7.868,"k",47,7.97,"k",9]},{"d":2,"st":"rock-shuffle","bpm":85,"e":[0.017,"p",61,0.027,"k",71,0.033,"s",36,0.298,"s",27,0.513,"p",67,0.544,"s",53,0.798,"s",24,1.015,"p",54,1.038,"k",57,1.044,"s",36,1.277,"o",6,1.283,"k",49,1.285,"s",23,1.525,"p",74,1.531,"s",49,1.783,"s",43,1.842,"o",7,2.031,"p",54,2.033,"k",62,2.038,"s",36,2.292,"s",28,2.296,"o",9,2.527,"p",67,2.54,"s",51,2.794,"s",26,2.808,"k",67,3.042,"s",35,3.058,"p",80,3.298,"s",26,3.327,"k",69,3.554,"s",49,3.569,"p",74,3.825,"s",44,4.058,"p",48,4.06,"k",56,4.067,"s",35,4.323,"o",8,4.331,"s",28,4.527,"p",41,4.565,"s",52,4.821,"s",26,4.865,"o",7,5.027,"p",41,5.048,"s",36,5.05,"k",56,5.292,"k",42,5.292,"o",7,5.296,"s",26,5.511,"p",61,5.529,"s",48,5.788,"s",43,6.006,"k",57,6.011,"p",35,6.027,"s",36,6.279,"s",28,6.508,"p",61,6.523,"s",51,6.785,"s",22,7.0,"p",41,7.015,"k",51,7.027,"s",36,7.24,"s",23,7.248,"k",42,7.363,"o",6,7.496,"s",50,7.502,"p",61,7.773,"s",48,7.821,"o",9]},{"d":8,"st":"rock-shuffle","bpm":112,"e":[0.02,"k",104,0.041,"h",83,0.641,"h",97,0.993,"s",117,1.007,"k",71,1.341,"h",67,1.67,"h",127,2.009,"k",73,2.345,"h",99,2.616,"s",68,3.003,"s",127,3.018,"o",127,3.026,"k",127,3.978,"p",32,4.003,"k",88,4.034,"h",115,4.641,"h",80,4.984,"k",82,4.993,"s",126,5.322,"h",85,5.666,"h",127,5.974,"k",85,6.332,"h",127,6.593,"s",40,6.989,"k",119,7.001,"s",127,7.016,"o",127,7.991,"p",37,7.993,"k",75]}],"f":[0.0,"s",74,0.09,"s",75,0.212,"s",60,0.329,"s",62,0.456,"s",92,0.585,"s",60,0.71,"s",51,0.835,"s",70,0.956,"t1",127,1.094,"t1",78,1.202,"t1",68,1.325,"t1",87,1.44,"t1",120,1.567,"t1",84,1.688,"t1",84,1.81,"t1",93,1.923,"c",54,1.929,"t1",127,1.95,"k",16,2.054,"t1",71,2.181,"t1",95,2.302,"t1",96,2.425,"t2",127,2.552,"t2",91,2.673,"t2",81,2.785,"t2",99,2.908,"t2",125,2.917,"k",17,3.031,"t2",101,3.148,"t2",80,3.279,"t2",96,3.402,"t3",84,3.527,"t3",86,3.654,"t3",115,3.783,"t3",127]},"eighths":{"v":[{"d":3,"st":"rock","bpm":120,"e":[0.486,"d",62,0.996,"d",118,1.0,"s",80,1.49,"d",62,1.984,"d",73,2.25,"s",69,2.473,"d",74,2.719,"k",48,2.969,"d",120,2.969,"s",88,3.486,"k",46,3.496,"d",76,3.982,"k",55,4.009,"d",83,4.505,"d",69,5.011,"d",99,5.025,"s",81,5.521,"d",68,6.0,"d",76,6.288,"s",81,6.525,"d",78,6.79,"k",53,7.015,"s",90,7.023,"d",117,7.509,"k",47,7.542,"d",85,7.975,"k",53,7.99,"d",121]},{"d":7,"st":"rock","bpm":118,"e":[0.948,"p",92,1.002,"s",127,1.034,"c",127,1.463,"s",33,1.494,"k",69,1.632,"s",38,1.713,"s",36,1.78,"s",32,1.832,"s",29,1.886,"s",23,1.971,"p",95,1.977,"c",98,2.469,"k",70,2.475,"c",39,2.971,"p",77,3.013,"s",127,3.034,"c",127,3.45,"c",33,3.467,"k",56,3.696,"s",32,3.784,"s",31,3.844,"s",27,3.898,"s",25,3.932,"s",27,3.967,"s",25,3.984,"p",90,3.992,"k",67,4.011,"c",80,4.398,"c",13,5.017,"p",90,5.038,"s",127,5.061,"c",127,5.527,"k",62,5.696,"s",26,5.782,"s",24,5.844,"s",23,5.892,"s",20,5.94,"s",21,5.977,"s",20,5.988,"p",85,6.019,"c",105,6.502,"k",55,6.525,"c",21,6.969,"p",87,7.0,"s",127,7.036,"c",121,7.446,"c",35,7.482,"k",47,7.617,"s",14,7.752,"s",15,7.813,"s",13,7.959,"p",87,7.98,"k",71,7.984,"c",120]},{"d":8,"st":"rock","bpm":117,"e":[0.249,"h",64,0.497,"h",127,0.739,"h",127,0.993,"h",127,1.236,"h",127,1.492,"k",127,2.006,"s",127,2.279,"h",54,2.508,"h",105,2.754,"h",127,2.985,"h",127,3.22,"h",118,3.472,"k",69,3.712,"k",63,3.787,"h",30,3.95,"p",20,4.287,"h",45,4.493,"h",127,4.745,"h",127,5.01,"h",127,5.245,"h",127,5.506,"k",127,5.963,"p",17,6.035,"s",127,6.535,"h",108,6.769,"h",127,7.022,"h",127,7.275,"h",127,7.506,"k",68,7.72,"k",6,7.752,"k",70,7.966,"p",17]}],"f":[0.0,"s",74,0.09,"s",75,0.212,"s",60,0.329,"s",62,0.456,"s",92,0.585,"s",60,0.71,"s",51,0.835,"s",70,0.956,"t1",127,1.094,"t1",78,1.202,"t1",68,1.325,"t1",87,1.44,"t1",120,1.567,"t1",84,1.688,"t1",84,1.81,"t1",93,1.923,"c",54,1.929,"t1",127,1.95,"k",16,2.054,"t1",71,2.181,"t1",95,2.302,"t1",96,2.425,"t2",127,2.552,"t2",91,2.673,"t2",81,2.785,"t2",99,2.908,"t2",125,2.917,"k",17,3.031,"t2",101,3.148,"t2",80,3.279,"t2",96,3.402,"t3",84,3.527,"t3",86,3.654,"t3",115,3.783,"t3",127]},"funk":{"v":[{"d":7,"st":"funk-groove2","bpm":105,"e":[0.016,"k",33,0.027,"h",86,0.483,"h",55,0.716,"k",26,0.964,"s",83,0.969,"h",80,1.481,"h",57,1.769,"k",30,1.981,"h",70,2.241,"k",18,2.475,"o",104,2.483,"k",37,2.958,"p",85,2.987,"s",94,3.0,"h",107,3.493,"h",57,4.008,"k",30,4.019,"h",93,4.512,"h",55,4.777,"k",18,4.993,"s",86,5.0,"h",76,5.521,"h",56,5.808,"k",29,6.025,"h",91,6.312,"k",10,6.519,"o",106,6.531,"k",33,7.012,"p",65,7.043,"s",86,7.054,"h",96,7.537,"h",54]},{"d":1,"st":"funk-groove2","bpm":105,"e":[0.0,"k",103,0.013,"h",51,0.313,"s",23,0.496,"h",63,0.775,"k",56,0.99,"s",114,1.0,"h",76,1.127,"s",24,1.232,"s",8,1.5,"h",58,1.786,"k",60,1.977,"h",45,2.311,"k",43,2.461,"k",51,2.475,"o",85,2.925,"p",52,2.984,"s",114,3.0,"h",74,3.49,"h",89,3.763,"s",31,3.836,"s",35,3.882,"s",34,3.946,"k",60,3.996,"h",43,4.292,"s",29,4.488,"h",86,4.788,"k",62,5.0,"h",88,5.0,"s",127,5.294,"s",7,5.496,"h",76,5.784,"k",55,5.996,"h",51,6.317,"k",43,6.469,"k",51,6.473,"o",59,6.955,"p",52,7.011,"s",127,7.023,"h",97,7.148,"s",33,7.313,"s",8,7.515,"h",79,7.759,"s",24,7.823,"s",25,7.871,"s",19]},{"d":8,"st":"funk-groove2","bpm":105,"e":[0.001,"k",71,0.016,"h",60,0.501,"h",36,0.824,"k",54,1.007,"s",127,1.014,"h",109,1.52,"h",46,1.791,"k",60,2.001,"h",51,2.289,"k",44,2.476,"k",75,2.493,"o",82,2.993,"p",67,2.999,"s",127,3.001,"o",56,3.489,"h",28,3.97,"k",74,3.986,"h",78,4.457,"h",37,4.795,"k",56,4.98,"s",127,4.993,"h",98,5.491,"h",41,5.791,"k",58,6.003,"h",45,6.276,"k",43,6.468,"k",77,6.493,"o",90,6.989,"s",127,6.995,"o",46,6.997,"p",67,7.493,"h",31,7.959,"k",69]}],"f":[0.037,"s",34,0.037,"t3",42,0.29,"t3",45,0.296,"s",36,0.506,"t3",52,0.519,"s",42,0.735,"t3",60,0.75,"s",51,0.99,"s",57,0.998,"t3",59,1.229,"s",76,1.231,"t3",67,1.477,"s",86,1.477,"t3",78,1.719,"t3",73,1.725,"s",82,1.985,"t3",72,1.998,"s",89,2.229,"t3",71,2.248,"s",76,2.471,"t3",86,2.481,"s",83,2.725,"k",58,2.948,"t3",127,3.006,"s",127]},"lofi":{"v":[{"d":8,"st":"hiphop","bpm":90,"e":[0.0,"h",127,0.275,"h",45,0.504,"p",20,0.535,"o",127,0.546,"k",70,0.819,"k",61,0.986,"p",60,1.044,"s",127,1.05,"h",111,1.281,"k",49,1.29,"h",49,1.477,"p",17,1.535,"k",82,1.544,"o",127,1.992,"p",50,2.038,"h",98,2.269,"h",50,2.523,"o",127,2.958,"p",55,3.004,"s",127,3.015,"h",115,3.248,"h",36,3.496,"k",67,3.504,"o",127,3.952,"p",65,3.998,"k",71,4.0,"h",107,4.236,"h",45,4.448,"p",37,4.498,"k",68,4.498,"o",127,4.765,"k",60,4.931,"p",62,5.002,"h",94,5.002,"s",118,5.227,"k",46,5.242,"h",48,5.477,"k",80,5.492,"o",127,5.975,"p",55,5.998,"h",89,6.238,"h",54,6.479,"o",127,6.944,"p",55,6.975,"s",118,6.988,"h",120,7.229,"h",53,7.44,"p",27,7.477,"k",69,7.492,"o",127,7.946,"p",67,7.99,"k",75]},{"d":5,"st":"hiphop-groove6","bpm":87,"e":[0.019,"h",75,0.025,"k",38,0.542,"h",30,1.038,"h",80,1.048,"s",102,1.532,"h",56,1.79,"k",31,2.019,"h",54,2.298,"k",14,2.492,"h",67,2.521,"k",34,2.996,"h",79,3.0,"s",87,3.288,"k",35,3.488,"h",60,3.788,"k",14,3.975,"h",71,4.019,"k",34,4.461,"k",38,4.494,"h",48,4.986,"h",78,5.0,"s",115,5.488,"h",51,5.811,"k",33,6.027,"h",68,6.503,"k",30,6.517,"h",59,6.994,"h",64,7.017,"k",33,7.486,"h",68,7.527,"k",29]},{"d":8,"st":"hiphop-groove6","bpm":87,"e":[0.967,"s",127,0.978,"h",127,1.238,"h",102,1.473,"h",90,1.736,"k",67,1.738,"h",98,1.982,"h",92,2.269,"h",72,2.284,"k",55,2.473,"k",92,2.492,"h",109,2.753,"h",82,2.998,"s",127,3.0,"h",127,3.25,"k",75,3.253,"h",94,3.494,"h",93,3.748,"h",81,3.798,"k",57,3.984,"k",85,3.996,"h",108,4.253,"h",78,4.507,"h",102,4.742,"k",67,4.769,"h",74,5.005,"s",124,5.015,"h",127,5.261,"h",74,5.5,"h",98,5.763,"h",115,5.765,"k",64,5.998,"h",95,6.253,"h",74,6.326,"k",57,6.498,"k",115,7.015,"k",103,7.517,"k",72,7.582,"s",5]}],"f":[0.0,"s",101,0.062,"s",102,0.144,"s",67,0.225,"s",62,0.31,"s",61,0.383,"s",84,0.481,"s",127,0.55,"s",100,0.646,"s",51,0.721,"s",64,0.817,"s",68,0.885,"s",87,0.979,"s",127,1.231,"t1",102,1.335,"s",77,1.45,"s",77,1.577,"s",127,1.688,"s",108,1.806,"t1",104,1.931,"t2",101,1.988,"d",30,2.013,"t2",72,2.1,"t2",54,2.181,"t2",82,2.265,"t2",84,2.356,"t2",89,2.421,"t2",124,2.523,"t2",90,2.612,"t2",45,2.69,"t2",71,2.779,"t2",106,2.856,"t2",106,2.952,"t3",81,3.04,"t3",54,3.117,"t3",92,3.188,"t3",101,3.277,"t3",97,3.36,"t3",119,3.427,"t3",127,3.527,"t3",100,3.621,"t3",73,3.7,"t3",68,3.781,"t3",111]},"pad":{"v":[{"d":1,"st":"jazz-march","bpm":88,"e":[0.002,"k",69,0.457,"p",40,0.482,"s",23,0.575,"s",30,0.694,"s",42,0.819,"s",43,0.946,"k",53,0.967,"s",60,1.446,"s",37,1.459,"p",42,1.465,"s",66,1.969,"s",68,1.971,"k",54,2.446,"p",47,2.482,"s",34,2.503,"s",54,2.965,"s",43,2.997,"s",77,3.003,"k",68,3.489,"p",40,3.498,"s",43,3.752,"s",39,3.968,"s",42,4.002,"k",57,4.017,"s",67,4.51,"s",38,4.515,"p",42,4.769,"s",34,4.984,"s",45,5.019,"k",52,5.03,"s",76,5.494,"p",42,5.507,"s",38,5.767,"s",32,5.946,"s",38,5.996,"k",55,6.015,"s",71,6.476,"p",40,6.498,"s",40,6.738,"s",39,6.948,"s",42,6.982,"k",55,7.007,"s",72,7.47,"p",42,7.484,"s",41,7.498,"k",54,7.528,"s",57,7.973,"s",40,7.998,"s",71]},{"d":1,"st":"rock-prog","bpm":125,"e":[0.015,"k",122,0.019,"t1",66,0.219,"s",44,0.408,"p",20,0.46,"t1",51,0.467,"s",50,0.714,"t1",95,0.948,"p",97,0.977,"s",127,0.987,"k",127,1.223,"t1",54,1.4,"p",40,1.479,"t1",68,1.702,"s",54,1.929,"p",95,1.992,"k",127,2.0,"t1",59,2.221,"s",48,2.41,"p",37,2.479,"t1",52,2.504,"s",52,2.748,"t1",89,2.956,"p",95,3.0,"s",127,3.01,"k",127,3.248,"t1",52,3.427,"p",45,3.521,"t1",83,3.733,"s",56,3.952,"p",95,4.012,"t1",64,4.021,"k",124,4.254,"s",46,4.419,"p",32,4.51,"t1",54,4.531,"s",46,4.767,"t1",73,4.954,"p",90,5.004,"k",117,5.006,"s",127,5.26,"t1",53,5.431,"p",25,5.521,"t1",64,5.733,"s",53,5.958,"p",90,6.0,"k",123,6.029,"t1",44,6.235,"s",48,6.431,"p",22,6.515,"s",49,6.515,"t1",57,6.783,"t1",80,6.981,"p",95,7.008,"k",96,7.017,"s",125,7.148,"s",41,7.281,"t1",61,7.45,"p",52,7.517,"t1",85,7.74,"s",42,7.962,"p",90]},{"d":1,"st":"rock-halftime","bpm":140,"e":[0.017,"k",52,0.017,"p",35,0.021,"d",81,0.525,"d",53,1.083,"p",110,1.096,"d",87,1.577,"d",52,2.051,"p",35,2.067,"s",101,2.086,"d",88,2.555,"d",60,2.996,"p",95,3.047,"d",80,3.496,"k",31,3.517,"d",59,3.938,"p",27,3.966,"k",65,4.011,"d",87,4.488,"d",53,4.963,"p",105,4.999,"d",81,5.492,"d",56,5.944,"p",37,5.983,"s",103,6.005,"d",87,6.511,"d",52,6.998,"p",107,7.008,"d",89,7.463,"p",20,7.528,"d",81,7.579,"k",34]}],"f":[0.0,"s",74,0.09,"s",75,0.212,"s",60,0.329,"s",62,0.456,"s",92,0.585,"s",60,0.71,"s",51,0.835,"s",70,0.956,"t1",127,1.094,"t1",78,1.202,"t1",68,1.325,"t1",87,1.44,"t1",120,1.567,"t1",84,1.688,"t1",84,1.81,"t1",93,1.923,"c",54,1.929,"t1",127,1.95,"k",16,2.054,"t1",71,2.181,"t1",95,2.302,"t1",96,2.425,"t2",127,2.552,"t2",91,2.673,"t2",81,2.785,"t2",99,2.908,"t2",125,2.917,"k",17,3.031,"t2",101,3.148,"t2",80,3.279,"t2",96,3.402,"t3",84,3.527,"t3",86,3.654,"t3",115,3.783,"t3",127]},"skank":{"v":[{"d":1,"st":"reggae","bpm":78,"e":[0.46,"h",71,0.975,"x",49,0.979,"h",19,0.981,"k",57,1.486,"h",88,2.0,"h",17,2.508,"h",70,2.844,"h",36,2.996,"k",61,3.004,"x",51,3.473,"o",106,3.965,"p",57,4.01,"h",18,4.488,"h",58,5.002,"x",54,5.015,"k",61,5.021,"h",28,5.504,"h",82,6.002,"h",18,6.504,"h",67,7.015,"k",69,7.017,"x",48,7.021,"h",27,7.488,"o",91,7.988,"p",52]},{"d":1,"st":"reggae-slow","bpm":64,"e":[0.198,"h",39,0.404,"h",110,0.665,"h",18,0.94,"x",58,0.946,"k",77,0.967,"h",54,1.242,"h",10,1.477,"h",45,1.729,"h",104,1.846,"h",79,1.981,"k",57,2.098,"h",70,2.221,"h",100,2.506,"h",76,2.754,"h",50,3.012,"x",62,3.015,"k",82,3.027,"h",44,3.287,"h",22,3.531,"h",55,3.798,"o",127,4.021,"p",40,4.048,"k",82,4.056,"h",24,4.296,"h",25,4.537,"h",127,4.777,"h",33,5.035,"k",72,5.037,"x",62,5.046,"h",50,5.298,"h",26,5.502,"h",54,5.737,"h",113,5.85,"h",101,5.969,"k",50,6.108,"h",74,6.225,"h",91,6.506,"h",74,6.75,"h",52,6.983,"x",60,6.985,"k",69,6.998,"h",67,7.246,"h",22,7.469,"h",52,7.737,"h",127,7.946,"p",37,7.985,"h",26,7.992,"k",58]},{"d":5,"st":"reggae","bpm":126,"e":[0.004,"k",36,0.483,"x",87,0.488,"h",127,0.99,"h",37,1.0,"k",27,1.017,"s",16,1.123,"s",8,1.49,"h",53,2.0,"h",99,2.008,"s",88,2.017,"k",28,2.244,"s",18,2.502,"h",31,2.763,"s",53,2.979,"h",60,3.002,"k",29,3.494,"s",81,3.5,"h",99,4.031,"h",29,4.031,"k",28,4.504,"x",81,4.513,"h",97,5.025,"h",34,5.069,"k",28,5.527,"h",40,6.017,"s",83,6.029,"h",98,6.042,"k",30,6.529,"o",33,6.754,"s",60,6.996,"h",67,7.002,"k",35,7.456,"s",93,7.469,"h",89,7.917,"s",7,7.99,"h",33]}],"f":[0.333,"t1",33,0.342,"t3",42,0.685,"t3",40,0.688,"t1",28,1.008,"t1",42,1.015,"t3",53,1.321,"t1",57,1.331,"t3",62,1.66,"t1",72,1.66,"t3",68,1.977,"s",98,2.025,"s",95,2.765,"t1",42,2.846,"t3",54,2.96,"k",67,3.41,"s",104,3.419,"o",121]},"clave":{"v":[{"d":8,"st":"latin-brazilian-songo","bpm":120,"e":[0.002,"k",127,0.029,"h",9,0.031,"d",127,0.075,"k",127,0.081,"b",127,0.521,"p",95,0.552,"s",127,0.796,"x",34,0.798,"k",75,1.019,"p",95,1.035,"b",127,1.277,"s",127,1.49,"k",65,1.506,"p",90,1.767,"s",127,1.977,"p",90,2.004,"k",127,2.038,"b",127,2.248,"s",96,2.442,"p",92,2.485,"s",76,2.744,"k",71,2.946,"p",90,2.973,"d",127,3.254,"s",104,3.46,"p",92,3.494,"k",94,3.51,"t2",95,3.754,"t1",87,3.969,"p",97,3.988,"k",127,4.015,"d",127,4.462,"p",95,4.485,"s",127,4.733,"x",30,4.756,"k",71,4.962,"p",92,4.967,"b",127,5.246,"s",127,5.435,"k",61,5.452,"p",85,5.742,"s",127,5.956,"p",87,5.994,"k",127,6.017,"b",127,6.25,"s",127,6.44,"p",95,6.473,"s",91,6.756,"k",71,6.948,"p",90,6.983,"d",127,6.983,"h",10,6.983,"k",8,7.252,"s",64,7.465,"p",87,7.5,"k",88,7.529,"t2",108,7.773,"t1",76,7.979,"p",97]},{"d":1,"st":"afrocuban","bpm":105,"e":[0.037,"b",76,0.519,"p",47,0.542,"s",70,0.553,"d",80,0.792,"s",24,0.828,"k",48,1.03,"p",40,1.071,"d",83,1.309,"s",17,1.486,"k",45,1.515,"d",32,1.534,"p",60,1.773,"d",26,1.776,"x",59,2.032,"p",70,2.063,"b",70,2.29,"s",16,2.514,"s",30,2.522,"p",60,2.544,"d",77,2.746,"k",47,2.792,"d",26,3.042,"p",67,3.067,"b",62,3.261,"s",19,3.455,"k",51,3.528,"p",55,3.54,"d",40,3.773,"d",38,3.78,"s",36,4.046,"p",85,4.058,"b",99,4.515,"p",70,4.52,"d",76,4.54,"s",72,4.783,"s",30,4.806,"k",46,5.028,"p",62,5.04,"b",81,5.22,"s",20,5.476,"d",30,5.485,"k",47,5.52,"p",65,5.735,"x",76,6.011,"p",75,6.024,"b",58,6.236,"s",20,6.479,"p",62,6.486,"s",29,6.498,"d",96,6.72,"k",49,6.752,"d",32,6.99,"p",57,7.044,"b",55,7.246,"s",8,7.46,"k",51,7.486,"p",60,7.508,"d",84,7.754,"d",34,7.985,"p",65]},{"d":8,"st":"latin","bpm":95,"e":[0.006,"h",127,0.264,"h",13,0.496,"h",60,0.742,"h",123,0.756,"k",70,0.99,"h",58,1.233,"h",10,1.475,"s",127,1.994,"h",64,2.237,"k",55,2.254,"h",127,2.504,"h",54,2.737,"h",91,2.787,"k",46,3.0,"k",127,3.006,"o",127,3.054,"p",67,3.517,"s",127,3.969,"p",22,4.006,"k",127,4.031,"h",127,4.317,"h",15,4.512,"h",62,4.756,"h",127,4.762,"k",67,5.01,"h",54,5.5,"s",127,5.987,"h",63,6.225,"k",53,6.252,"h",127,6.504,"h",59,6.727,"h",112,6.773,"k",43,6.975,"k",122,6.987,"o",127,6.987,"p",75,7.262,"o",15,7.481,"s",127,7.933,"p",27,7.971,"k",127,7.992,"h",127]}],"f":[0.0,"t3",89,0.006,"s",77,0.323,"s",68,0.323,"t3",69,0.675,"k",35,0.969,"k",36,1.292,"t1",67,1.296,"t3",73,1.658,"t1",72,1.667,"t3",77,2.023,"k",28,2.319,"k",42,2.631,"s",77,2.669,"t3",81,3.021,"s",64,3.025,"t3",71,3.308,"k",28,3.635,"k",59]}};
+
+  var KIT_LABEL={none:"Nessuna", acu:"Acustica", perc:"Percussioni", m808:"808", m909:"909"};
+  var KIT_ORDER=["none","acu","perc","m808","m909"];
+  var KIT_SAMPLES={
+    acu:{k:["acu/k1","acu/k2","acu/k3"], s:["acu/s1","acu/s2","acu/s3"], x:["acu/x"], h:["acu/h1","acu/h2","acu/h3"], p:["acu/hp"], o:["acu/ho"],
+         t1:["acu/t1"], t2:["acu/t2"], t3:["acu/t3"], c:["acu/cr"], d:["acu/rd"], b:["acu/rb"]},
+    perc:{k:["perc/cj1"], s:["perc/cj2","perc/cl"], x:["perc/cv"], h:["perc/sh2","perc/sh1"], p:["perc/sh2"], o:["perc/tb"],
+          t1:["perc/bh"], t2:["perc/cg2","perc/bl"], t3:["perc/cg3","perc/cg1"], c:["perc/tb"], d:["perc/cb"], b:["perc/cb"]}
+  };
+  var PIECE_GAIN={k:1, s:.8, x:.55, h:.42, p:.38, o:.42, t1:.75, t2:.75, t3:.8, c:.4, d:.36, b:.4};
+  var GMNOTE={k:36,s:38,x:37,h:42,p:44,o:46,t1:48,t2:45,t3:43,c:49,d:51,b:53};
+  var DRUMBUF={}, drumLoad={}, drumBusNode=null, drumNodes=[], openHat=null, NOISE=null;
+
+  function loadKit(kit){
+    if(!KIT_SAMPLES[kit] || !ac) return Promise.resolve();
+    if(drumLoad[kit]) return drumLoad[kit];
+    var names=[]; for(var p in KIT_SAMPLES[kit]) KIT_SAMPLES[kit][p].forEach(function(n){ if(names.indexOf(n)<0) names.push(n); });
+    drumLoad[kit]=Promise.all(names.map(function(n){
+      return fetch("samples/drums/"+n+".mp3").then(function(r){ if(!r.ok) throw new Error(n); return r.arrayBuffer(); })
+        .then(decode).then(function(b){ DRUMBUF[n]=b; }).catch(function(){});
+    }));
+    return drumLoad[kit];
+  }
+  function preloadDrums(){ if(ac) loadKit(build.kit); }
+  function bus(){
+    if(!drumBusNode){ drumBusNode=ac.createGain(); drumBusNode.connect(master); }
+    drumBusNode.gain.value=build.dvol;
+    return drumBusNode;
+  }
+  function track(node, t){ drumNodes.push({n:node, t:t}); if(drumNodes.length>400) drumNodes.splice(0,200); }
+  function stopDrums(){
+    if(!ac) return;
+    var now=ac.currentTime;
+    drumNodes.forEach(function(d){ if(d.t>now-0.005){ try{ d.n.stop(now); }catch(e){} } });
+    drumNodes=[]; openHat=null;
+  }
+  function chokeHat(t){ if(openHat && openHat.t<t){ try{ openHat.g.gain.cancelScheduledValues(t); openHat.g.gain.setTargetAtTime(0.0001, t, 0.015); }catch(e){} openHat=null; } }
+
+  /* ---- drum machine sintetizzate: niente file, solo oscillatori e rumore ---- */
+  function noiseBuf(C){
+    if(!NOISE || NOISE.sampleRate!==C.sampleRate){ var n=C.sampleRate*1.5|0; NOISE=C.createBuffer(1,n,C.sampleRate); var d=NOISE.getChannelData(0); for(var i=0;i<n;i++) d[i]=Math.random()*2-1; }
+    return NOISE;
+  }
+  function envG(C, dest, t, peak, a, d){ var g=C.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(Math.max(0.0002,peak),t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); g.connect(dest); return g; }
+  function oscN(C, type, f, t, dur, dest){ var o=C.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); o.connect(dest); o.start(t); o.stop(t+dur+0.05); if(C===ac) track(o,t); return o; }
+  function noiseN(C, t, dur, dest){ var s=C.createBufferSource(); s.buffer=noiseBuf(C); s.connect(dest); s.start(t, Math.random()*0.4); s.stop(t+dur+0.05); if(C===ac) track(s,t); return s; }
+  function filt(C, type, f, q, dest){ var b=C.createBiquadFilter(); b.type=type; b.frequency.value=f; if(q) b.Q.value=q; b.connect(dest); return b; }
+  var METAL=[205.3,304.4,369.6,522.7,540,800];
+  function metal(C, t, dur, dest){ METAL.forEach(function(f){ oscN(C,"square",f*1.32,t,dur,dest); }); }
+  function synthDrum(kit, piece, t, v, C, dest){
+    C=C||ac; dest=dest||bus();
+    var is9 = kit==="m909", lv=Math.pow(v/127,1.25)*(PIECE_GAIN[piece]||1)*1.15, g, o, b;
+    switch(piece){
+      case "k":
+        g=envG(C,dest,t,lv*1.5,0.002,is9?0.42:0.85);
+        o=oscN(C,"sine",is9?200:155,t,is9?0.5:0.95,g); o.frequency.exponentialRampToValueAtTime(is9?50:44, t+(is9?0.08:0.14));
+        if(is9){ noiseN(C,t,0.03, filt(C,"highpass",2200,0, envG(C,dest,t,lv*0.45,0.001,0.025))); }
+        else { oscN(C,"triangle",1200,t,0.012, envG(C,dest,t,lv*0.25,0.001,0.01)); }
+        return g;
+      case "s":
+        g=envG(C,dest,t,lv*0.55,0.001,is9?0.11:0.14);
+        oscN(C,is9?"triangle":"sine",is9?190:180,t,0.2,g); oscN(C,"sine",is9?340:330,t,0.2,g);
+        noiseN(C,t,0.3, filt(C,"highpass",is9?1800:1300,0, envG(C,dest,t,lv*(is9?0.75:0.6),0.001,is9?0.22:0.18)));
+        return g;
+      case "x":
+        g=envG(C,dest,t,lv*0.6,0.001,0.035); oscN(C,"triangle",1750,t,0.06,g);
+        noiseN(C,t,0.05, filt(C,"bandpass",2800,2, envG(C,dest,t,lv*0.4,0.001,0.03)));
+        return g;
+      case "h": case "p": case "o":
+        var dur = piece==="o" ? (is9?0.55:0.38) : (piece==="p"?0.035:0.05);
+        g=envG(C,dest,t,lv*(piece==="o"?0.5:0.45),0.001,dur);
+        b=filt(C,"highpass",7200,0,filt(C,"bandpass",10000,0.8,g));
+        if(is9) noiseN(C,t,dur+0.1,b); else metal(C,t,dur+0.1,b);
+        if(piece==="o") openHat={g:g, t:t};
+        return g;
+      case "t1": case "t2": case "t3":
+        var f0 = (is9?{t1:270,t2:200,t3:145}:{t1:230,t2:170,t3:125})[piece];
+        g=envG(C,dest,t,lv*0.9,0.002,is9?0.32:0.45);
+        o=oscN(C,"sine",f0,t,0.55,g); o.frequency.exponentialRampToValueAtTime(f0*0.72, t+0.25);
+        noiseN(C,t,0.03, filt(C,"lowpass",3000,0, envG(C,dest,t,lv*0.15,0.001,0.03)));
+        return g;
+      case "c":
+        g=envG(C,dest,t,lv*0.45,0.002,1.6);
+        b=filt(C,"highpass",5500,0,g); noiseN(C,t,1.7,b); metal(C,t,1.7,filt(C,"highpass",8000,0,envG(C,dest,t,lv*0.18,0.002,1.2)));
+        return g;
+      case "d": case "b":
+        g=envG(C,dest,t,lv*(piece==="b"?0.45:0.3),0.001,piece==="b"?0.6:0.75);
+        b=filt(C,"bandpass",piece==="b"?3200:5200,piece==="b"?3:1.2,g);
+        metal(C,t,0.8,b); if(piece==="d") noiseN(C,t,0.4,filt(C,"highpass",9000,0,envG(C,dest,t,lv*0.12,0.001,0.3)));
+        return g;
+    }
+    return null;
+  }
+
+  function playDrum(piece, t, v){
+    var kit=build.kit; if(kit==="none" || !ac) return;
+    if(piece==="h" || piece==="p") chokeHat(t);
+    if(kit==="m808" || kit==="m909"){ synthDrum(kit, piece, t, v); return; }
+    var list=KIT_SAMPLES[kit] && KIT_SAMPLES[kit][piece]; if(!list) return;
+    var n=list[Math.min(list.length-1, Math.floor(v/128*list.length))], buf=DRUMBUF[n];
+    if(!buf){ loadKit(kit); return; }
+    var src=ac.createBufferSource(), g=ac.createGain();
+    src.buffer=buf; src.playbackRate.value=1+(Math.random()-0.5)*0.015;
+    g.gain.value=Math.pow(v/127,1.5)*(PIECE_GAIN[piece]||1)*1.6;
+    src.connect(g); g.connect(bus()); src.start(t); track(src, t);
+    if(piece==="o") openHat={g:g, t:t};
+  }
+
+  /* ---- il groove del batterista per ogni battuta del giro ---- */
+  function drumPattern(){
+    var g=DRUMPAT[build.groove]; if(!g || !g.v.length) return null;
+    var v=g.v[Math.min(build.dv, g.v.length-1)];
+    return {e:v.e, fill:g.f, bpm:v.bpm, d:v.d, st:v.st};
+  }
+  function drumBarEvents(barIdx, nItems, restart){
+    var P=drumPattern(); if(!P) return [];
+    var out=[], useFill = build.dfill && nItems>=4 && barIdx===nItems-1 && P.fill.length;
+    var src = useFill ? P.fill : P.e, off = useFill ? 0 : (barIdx%2)*4, e=state.energy;
+    for(var i=0;i<src.length;i+=3){
+      var t=src[i]-off; if(t<0 || t>=4) continue;
+      var v=src[i+2];
+      if(e<0.34){ if(v<45) continue; v*=0.82; } else if(e>0.67) v=Math.min(127, v*1.12);
+      out.push([t, src[i+1], Math.round(v)]);
+    }
+    if(restart && build.dfill && barIdx===0 && nItems>=4) out.push([0, "c", 104]);
+    return out;
+  }
+  function scheduleDrumBar(barStart, barIdx, nItems, restart){
+    if(build.kit==="none") return;
+    var beat=60/seq.bpm;
+    drumBarEvents(barIdx, nItems, restart).forEach(function(d){ playDrum(d[1], barStart + d[0]*beat, d[2]); });
+  }
+
+  /* ---- comandi nella finestra del giro ---- */
+  var dKits=document.getElementById("d-kits"), dVar=document.getElementById("d-var"), dFill=document.getElementById("d-fill"), dVol=document.getElementById("d-vol"), dTempo=document.getElementById("d-tempo");
+  KIT_ORDER.forEach(function(k){
+    var b=document.createElement("button"); b.type="button"; b.className="chip"; b.dataset.kit=k; b.textContent=KIT_LABEL[k];
+    b.addEventListener("click",function(){ build.kit=k; if(ensureAudio()) loadKit(k); renderDrums(); saveBuild(); if(k!=="none" && !(seq.on && seq.owner==="build")) auditionDrums(); });
+    dKits.appendChild(b);
+  });
+  dVar.addEventListener("click",function(e){ var b=e.target.closest ? e.target.closest("[data-dv]") : null; if(!b) return; build.dv=+b.dataset.dv; renderDrums(); saveBuild(); if(!(seq.on && seq.owner==="build")) auditionDrums(); });
+  dFill.addEventListener("change",function(){ build.dfill=dFill.checked; saveBuild(); });
+  dVol.addEventListener("input",function(){ build.dvol=+dVol.value/100; if(drumBusNode) drumBusNode.gain.setTargetAtTime(build.dvol, ac.currentTime, 0.03); saveBuild(); });
+  dTempo.addEventListener("click",function(){ var P=drumPattern(); if(P){ setBpm(P.bpm); bStatus.textContent="Tempo del batterista: "+build.bpm+" BPM."; } });
+  function styleWord(st){ var w=st.replace(/-groove\d+/,"").split("-"); return w[w.length-1]; }
+  /* ascolto veloce: due battute di batteria sola */
+  var auditionT=null;
+  function auditionDrums(){
+    if(!ensureAudio() || build.kit==="none") return;
+    loadKit(build.kit).then(function(){
+      if(seq.on) return;
+      stopDrums();
+      var t0=ac.currentTime+0.08, bar=240/build.bpm;
+      for(var b=0;b<2;b++){ var beat=60/build.bpm; drumBarEvents(b, 2, false).forEach(function(d){ playDrum(d[1], t0+b*bar+d[0]*beat, d[2]); }); }
+    });
+  }
+  function renderDrums(){
+    [].forEach.call(dKits.children,function(b){ var on=b.dataset.kit===build.kit; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on?"true":"false"); });
+    var g=DRUMPAT[build.groove], vs=g ? g.v : [];
+    if(build.dv>=vs.length) build.dv=0;
+    dVar.innerHTML = vs.map(function(v,k){ return '<button type="button" data-dv="'+k+'" aria-pressed="'+(k===build.dv)+'"><b>Batterista '+v.d+'</b><small>'+styleWord(v.st)+' · '+v.bpm+'</small></button>'; }).join("");
+    dVar.hidden = build.kit==="none" || !vs.length;
+    dFill.checked=build.dfill; dVol.value=Math.round(build.dvol*100);
+    var P=drumPattern(); dTempo.textContent = P ? "Usa il suo tempo ("+P.bpm+" BPM)" : "";
+    document.getElementById("d-opts").hidden = build.kit==="none";
+  }
+
+  /* ---- pacchetti da scaricare (Studio) ---- */
+  var PACKS=[
+    {id:"groove", name:"Groove dei batteristi", sub:"33 loop e 11 fill in MIDI, uno per stile", lic:"CC BY 4.0 · Google Magenta", kind:"midi"},
+    {id:"acu", name:"Batteria acustica", sub:"Cassa, rullante, charleston, tom e piatti, con più dinamiche", lic:"CC0 · Versilian Studios", kind:"files", files:"drums/acu"},
+    {id:"perc", name:"Percussioni", sub:"Cajon, shaker, conghe, bongo, campanaccio, battimani, tamburello, claves", lic:"CC0 · Versilian Studios", kind:"files", files:"drums/perc"},
+    {id:"m808", name:"Drum machine 808", sub:"Colpi generati dalla Ruota, in WAV", lic:"Liberi, creati da te", kind:"synth"},
+    {id:"m909", name:"Drum machine 909", sub:"Colpi generati dalla Ruota, in WAV", lic:"Liberi, creati da te", kind:"synth"},
+    {id:"epiano", name:"Piano elettrico FM", sub:"16 note, da Do1 a Do6", lic:"CC0 · Versilian Studios", kind:"inst"},
+    {id:"kalimba", name:"Kalimba", sub:"12 lamelle, riaccordate a 440 Hz", lic:"CC0 · Versilian Studios", kind:"inst"},
+    {id:"marimba", name:"Marimba", sub:"10 note, da Fa2 a Do7", lic:"CC0 · Versilian Studios", kind:"inst"},
+    {id:"harp", name:"Arpa", sub:"16 note, da Re2 a La6", lic:"CC0 · Versilian Studios", kind:"inst"}
+  ];
+  var LIC_CC0="Campioni dalla Versilian Community Sample Library (Versilian Studios), licenza CC0 1.0: liberi per qualsiasi uso, anche commerciale, senza obbligo di citazione.\nhttps://github.com/sgossner/VCSL\nTagliati, normalizzati e convertiti per la Ruota Armonica.\n";
+  var LIC_GMD="Groove estratti dal Groove MIDI Dataset di Google Magenta, licenza Creative Commons Attribution 4.0 (CC BY 4.0).\nSe li usi, cita: Jon Gillick, Adam Roberts, Jesse Engel, Douglas Eck, David Bamman, \"Learning to Groove with Inverse Sequence Transformations\", ICML 2019.\nhttps://magenta.tensorflow.org/datasets/groove\nOgni loop è stato scelto e tagliato dalla Ruota Armonica: due battute di groove e una battuta di fill per stile.\n";
+  var GROOVE_NAME={pop:"pop",bossa:"bossa-nova",swing:"swing",slow:"ballad",shuffle:"shuffle",eighths:"rock",funk:"funk",lofi:"lo-fi",pad:"cinema",skank:"reggae",clave:"latin"};
+  var packList=document.getElementById("pack-list"), packStatus=document.getElementById("pack-status");
+  function crcOf(u8){ return crc32(u8); }
+  function zipMany(entries){
+    var parts=[], cds=[], off=0, enc=new TextEncoder();
+    entries.forEach(function(en){
+      var name=enc.encode(en.name), u8=en.u8, crc=crcOf(u8), n=u8.length;
+      var lh=new Uint8Array(30+name.length), a=new DataView(lh.buffer);
+      a.setUint32(0,0x04034b50,true); a.setUint16(4,20,true); a.setUint16(6,0x0800,true); a.setUint16(8,0,true); a.setUint16(10,0,true); a.setUint16(12,0x0021,true);
+      a.setUint32(14,crc,true); a.setUint32(18,n,true); a.setUint32(22,n,true); a.setUint16(26,name.length,true); a.setUint16(28,0,true); lh.set(name,30);
+      var cd=new Uint8Array(46+name.length), c=new DataView(cd.buffer);
+      c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true); c.setUint16(8,0x0800,true); c.setUint16(10,0,true); c.setUint16(12,0,true); c.setUint16(14,0x0021,true);
+      c.setUint32(16,crc,true); c.setUint32(20,n,true); c.setUint32(24,n,true); c.setUint16(28,name.length,true); c.setUint32(42,off,true); cd.set(name,46);
+      parts.push(lh,u8); cds.push(cd); off+=lh.length+n;
+    });
+    var cdlen=cds.reduce(function(s,x){ return s+x.length; },0), eo=new Uint8Array(22), d=new DataView(eo.buffer);
+    d.setUint32(0,0x06054b50,true); d.setUint16(8,entries.length,true); d.setUint16(10,entries.length,true); d.setUint32(12,cdlen,true); d.setUint32(16,off,true);
+    return new Blob(parts.concat(cds,[eo]),{type:"application/zip"});
+  }
+  function saveBlob(blob, name){
+    if(dl){
+      return dl.save({filename:name, data:blob}).then(function(){ packStatus.textContent="Salvato "+name+"."; })
+        .catch(function(err){ packStatus.textContent = (err && err.code==="declined") ? "Salvataggio annullato." : "Non riesco a salvare da qui: apri la Ruota dal tuo sito (GitHub Pages) per scaricare direttamente."; });
+    }
+    try{
+      var url=URL.createObjectURL(blob), a=document.createElement("a");
+      a.href=url; a.download=name; a.style.display="none"; document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },2000);
+      packStatus.textContent="Scaricato "+name+".";
+    }catch(e){ packStatus.textContent="Il download è stato bloccato dal browser."; }
+    return Promise.resolve();
+  }
+  function txt(s){ return new TextEncoder().encode(s); }
+  function fetchU8(path){ return fetch(path).then(function(r){ if(!r.ok) throw new Error(path); return r.arrayBuffer(); }).then(function(b){ return new Uint8Array(b); }); }
+  function instFiles(id){ var I=INST[id]; return I ? I.files.map(function(f){ return {path:I.dir+f+".mp3", name:f+".mp3"}; }) : []; }
+  function kitFiles(dir){ var k=dir.split("/")[1], names=[]; for(var p in KIT_SAMPLES[k]) KIT_SAMPLES[k][p].forEach(function(n){ if(names.indexOf(n)<0) names.push(n); }); return names.map(function(n){ return {path:"samples/drums/"+n+".mp3", name:n.split("/")[1]+".mp3"}; }); }
+  var PIECE_NAME={k:"cassa",s:"rullante",x:"cross-stick",h:"charleston-chiuso",p:"charleston-pedale",o:"charleston-aperto",t1:"tom-alto",t2:"tom-medio",t3:"tom-basso",c:"crash",d:"ride",b:"campana-ride"};
+  function renderSynthPack(kit){
+    var OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!OAC) return Promise.reject(new Error("offline"));
+    var pieces=Object.keys(PIECE_NAME);
+    return Promise.all(pieces.map(function(p){
+      var len = p==="c" ? 2 : (p==="o"||p==="d"||p==="b" ? 1 : 0.8), C=new OAC(1, Math.round(44100*len), 44100), g=C.createGain(); g.gain.value=1.4; g.connect(C.destination);
+      synthDrum(kit, p, 0.005, 112, C, g);
+      return C.startRendering().then(function(buf){ var d=buf.getChannelData(0); return {name:kit.replace("m","")+"-"+PIECE_NAME[p]+".wav", u8:writeWav(d,d,44100)}; });
+    }));
+  }
+  function grooveMidiEntries(){
+    var out=[];
+    Object.keys(DRUMPAT).forEach(function(g){
+      var o=DRUMPAT[g];
+      o.v.forEach(function(v,k){
+        var notes=[], sp=60/v.bpm;
+        for(var i=0;i<v.e.length;i+=3) notes.push({n:GMNOTE[v.e[i+1]], s:v.e[i]*sp, e:v.e[i]*sp+0.12, v:v.e[i+2], ch:9});
+        out.push({name:GROOVE_NAME[g]+"-"+(k+1)+"-batterista"+v.d+"-"+styleWord(v.st)+"-"+v.bpm+"bpm.mid", u8:writeMidi(notes, v.bpm)});
+      });
+      if(o.f.length){ var notes=[], bpm=o.v.length?o.v[0].bpm:100, sp=60/bpm; for(var i=0;i<o.f.length;i+=3) notes.push({n:GMNOTE[o.f[i+1]], s:o.f[i]*sp, e:o.f[i]*sp+0.12, v:o.f[i+2], ch:9}); out.push({name:GROOVE_NAME[g]+"-fill-"+bpm+"bpm.mid", u8:writeMidi(notes,bpm)}); }
+    });
+    return out;
+  }
+  function downloadPack(id, btn){
+    var pk=PACKS.filter(function(p){ return p.id===id; })[0]; if(!pk) return;
+    btn.disabled=true; var old=btn.textContent; btn.textContent="Preparo…"; packStatus.textContent="Preparo «"+pk.name+"»…";
+    var job;
+    if(pk.kind==="midi") job=Promise.resolve(grooveMidiEntries().concat([{name:"LEGGIMI-licenza.txt", u8:txt(LIC_GMD)}]));
+    else if(pk.kind==="synth") job=renderSynthPack(pk.id).then(function(es){ return es.concat([{name:"LEGGIMI.txt", u8:txt("Colpi di batteria "+pk.name+" generati dalla Ruota Armonica con oscillatori e rumore: nessun campione di terzi, liberi per qualsiasi uso.\n")}]); });
+    else {
+      var list = pk.kind==="inst" ? instFiles(pk.id) : kitFiles(pk.files);
+      job=Promise.all(list.map(function(f){ return fetchU8(f.path).then(function(u8){ return {name:f.name, u8:u8}; }); }))
+        .then(function(es){ return es.concat([{name:"LEGGIMI-licenza.txt", u8:txt(LIC_CC0)}]); });
+    }
+    job.then(function(es){ return saveBlob(zipMany(es), "ruota-armonica-"+pk.id+".zip"); })
+      .catch(function(){ packStatus.textContent="Non riesco a preparare il pacchetto: i file non sono raggiungibili da qui."; })
+      .then(function(){ btn.disabled=false; btn.textContent=old; });
+  }
+  packList.innerHTML = PACKS.map(function(p){
+    return '<div class="lib-row"><div class="lib-tx"><b>'+p.name+'</b><small>'+p.sub+'</small><small class="lic">'+p.lic+'</small></div><button type="button" class="btn" data-pack="'+p.id+'">Scarica</button></div>';
+  }).join("");
+  packList.addEventListener("click",function(e){ var b=e.target.closest ? e.target.closest("[data-pack]") : null; if(b) downloadPack(b.dataset.pack, b); });
+
   /* il riquadro dell'energia: ogni colpo lo legge l'IA del tocco */
   var ePad=document.getElementById("e-pad");
   ePad.addEventListener("pointerdown",function(e){
@@ -3194,7 +3513,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   function markScales(){ [].forEach.call(scalesEl.children,function(c){ var on=c.dataset.scale===state.scale; c.classList.toggle("on",on); c.setAttribute("aria-pressed",on?"true":"false"); }); }
 
   var soundsEl=document.getElementById("sounds"), sampleBtn=null;
-  var SOUND_SUB={piano:"Registrato dal vero", chitarra:"Registrata dal vero, pizzicata", rhodes:"Piano elettrico morbido", pad:"Tappeto sintetico, lento", archi:"Sezione d'archi", organo:"Canne e registri"};
+  var SOUND_SUB={epiano:"FM anni Ottanta, registrato dal vero", kalimba:"Lamelle africane, dolce", marimba:"Legno caldo e percussivo", arpa:"Corde pizzicate, ampie", piano:"Registrato dal vero", chitarra:"Registrata dal vero, pizzicata", rhodes:"Piano elettrico morbido", pad:"Tappeto sintetico, lento", archi:"Sezione d'archi", organo:"Canne e registri"};
   var CHECK='<svg class="ic ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function soundBtn(k, label, sub){
     var b=document.createElement("button");
@@ -3215,7 +3534,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     soundsEl.appendChild(sampleBtn);
     markSound();
   }
-  function pickSound(k){ state.suono=k; state.prev=null; markSound(); }
+  function pickSound(k){ state.suono=k; state.prev=null; var P=PRESETS[k]; if(P && P.sampled && INST[P.sampled] && ac) loadInst(P.sampled); markSound(); markInstStatus(); }
   function markSound(){
     [].forEach.call(soundsEl.children,function(c){ var on=c.dataset.snd===state.suono; c.classList.toggle("on", on); c.setAttribute("aria-pressed",on?"true":"false"); });
     syncChrome();
@@ -3269,7 +3588,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     t.addEventListener("click",function(){
       [].forEach.call(document.querySelectorAll(".tab"),function(x){ x.classList.remove("on"); x.setAttribute("aria-selected","false"); });
       t.classList.add("on"); t.setAttribute("aria-selected","true");
-      ["rec","smp","midi"].forEach(function(id){
+      ["rec","smp","midi","pack"].forEach(function(id){
         document.getElementById("panel-"+id).hidden = (id!==t.dataset.tab);
       });
       if(t.dataset.tab==="rec") drawRoll();
@@ -3391,8 +3710,8 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
       if(nt.e===null) return;
       var s=Math.round(nt.s*TPQ*bpm/60), e=Math.round(nt.e*TPQ*bpm/60);
       if(e<=s) e=s+20;
-      evs.push({t:s,a:0x90,n:nt.n,v:nt.v||92});
-      evs.push({t:e,a:0x80,n:nt.n,v:0});
+      evs.push({t:s,a:0x90|(nt.ch||0),n:nt.n,v:nt.v||92});
+      evs.push({t:e,a:0x80|(nt.ch||0),n:nt.n,v:0});
     });
     evs.sort(function(x,y){ return (x.t-y.t)||(x.a-y.a); });
     var mpqn=Math.round(60000000/bpm);
