@@ -188,6 +188,10 @@ svg.wheel{position:relative;width:100%;height:100%;display:block;overflow:visibl
 .dock-play[disabled]{opacity:.35}
 .dock-play svg{width:20px;height:20px;fill:currentColor}
 
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom, 0px));z-index:80;transform:translate(-50%,10px);opacity:0;pointer-events:none;
+  max-width:calc(100vw - 32px);background:var(--ink);color:var(--bg);border-radius:999px;padding:10px 18px;font-size:14px;letter-spacing:-.01em;text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);transition:opacity .25s var(--ease),transform .35s var(--spring)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 /* ---------- finestre ---------- */
 .scrim{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
@@ -653,6 +657,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     </div>
   </main>
 
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <nav class="dock" aria-label="Strumenti">
     <button class="dock-btn" type="button" data-open="giro" aria-haspopup="dialog" aria-expanded="false" id="dock-giro">
       <span class="pip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="4" height="12" rx="1.5"/><rect x="10" y="6" width="4" height="12" rx="1.5"/><rect x="17" y="6" width="4" height="12" rx="1.5"/></svg></span>Giro</button>
@@ -1910,7 +1915,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     while(t && t!==document.body && !(t.dataset && (t.dataset.deg!==undefined||t.dataset.mod||t.dataset.tonic!==undefined))) t=t.parentNode;
     return (!t||t===document.body) ? null : t;
   }
-  function setTonic(pc){ state.tonic=pc; state.prev=null; rotateRing(false); refresh(); }
+  function setTonic(pc){ if(pc===state.tonic) return; var moved=transposeGiro(pc-state.tonic); state.tonic=pc; state.prev=null; rotateRing(false); refresh(); if(moved) giroToast("Giro spostato in "+keyLabel()+"."); }
   /* ogni dito tiene il suo accordo: alzandone uno si ferma solo quello */
   var pointers = {};
   function onDown(e){
@@ -2084,7 +2089,11 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
   function setGenre(k, userPick){
     var g=GENRES[k];
     state.genre=k; state.prev=null;
-    if(g.scale) state.scale=g.scale;
+    var scaleMoved=false;
+    if(g.scale){
+      if(userPick && g.scale!==state.scale){ var oldK=keyChords(); state.scale=g.scale; scaleMoved=remapGiro(oldK, keyChords()); }
+      else state.scale=g.scale;
+    }
     if(userPick && g.sound && state.suono!=="sample") state.suono=g.sound;
     [].forEach.call(genresEl.children,function(c){ var on=c.dataset.genre===k; c.classList.toggle("on",on); c.setAttribute("aria-pressed", on?"true":"false"); });
     nowdesc.textContent=g.desc; bump(nowdesc);
@@ -2093,6 +2102,7 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     document.getElementById("colorenote").textContent = lib ? "Da semplice a ricco." : "In "+g.name+" il colore lo decide lo stile. Torna su Libero per regolarlo.";
     markScales(); markSound();
     refresh();
+    if(scaleMoved) giroToast(g.name+" usa la scala "+SCALES[state.scale].mus+": il giro ora segue i suoi gradi.");
   }
   function giroChords(){
     var g=GENRES[state.genre];
@@ -3117,6 +3127,40 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     closeLib(); bStatus.textContent="Giro nuovo. Se ti serviva quello di prima, annulla."; renderBuild();
   });
 
+  /* ---- il giro segue la ruota: cambi tonalità e si sposta, cambi carattere e ogni accordo prende il suo grado nella nuova scala ---- */
+  function giroHasChords(){ return PARTS.some(function(p){ return lastIn(build.parts[p])>=0; }); }
+  function eachChord(fn){ PARTS.forEach(function(p){ build.parts[p].forEach(function(c){ if(c){ fn(c); if(c.h2) fn(c.h2); } }); }); }
+  function transposeGiro(delta){
+    delta=mod12(delta);
+    if(!delta || !giroHasChords()) return false;
+    eachChord(function(c){ c.pc=mod12(c.pc+delta); if(typeof c.b==="number") c.b=mod12(c.b+delta); });
+    return true;
+  }
+  function remapGiro(oldKey, newKey){
+    if(!giroHasChords()) return false;
+    var changed=false;
+    function deg(pc){ for(var d=0;d<7;d++) if(oldKey[d].pc===pc) return d; return -1; }
+    eachChord(function(c){
+      var d=deg(c.pc);
+      if(d>=0){
+        var q=c.q;
+        if(c.q===oldKey[d].q || (c.q==="maj" && oldKey[d].q==="dom")) q=newKey[d].q;
+        if(q!==c.q || newKey[d].pc!==c.pc) changed=true;
+        c.q=q; c.pc=newKey[d].pc;
+      }
+      if(typeof c.b==="number"){ var db=deg(c.b); if(db>=0 && newKey[db].pc!==c.b){ c.b=newKey[db].pc; changed=true; } }
+    });
+    return changed;
+  }
+  function giroToast(msg){
+    var t=document.getElementById("toast");
+    bStatus.textContent=msg;
+    t.textContent=msg; t.hidden=false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
+    clearTimeout(giroToast.tm);
+    giroToast.tm=setTimeout(function(){ t.classList.remove("show"); setTimeout(function(){ if(!t.classList.contains("show")) t.hidden=true; }, 320); }, 2800);
+  }
+  function keyLabel(){ return IT[state.tonic]+" "+SCALES[state.scale].mus; }
+
   /* il riquadro dell'energia: ogni colpo lo legge l'IA del tocco */
   var ePad=document.getElementById("e-pad");
   ePad.addEventListener("pointerdown",function(e){
@@ -3138,7 +3182,13 @@ canvas{display:block;width:100%;border-radius:14px;background:var(--group);touch
     }
     b.innerHTML='<span class="nm">'+SCALES[k].car+'</span><small>'+SCALES[k].mus+'</small><svg viewBox="0 0 200 14" preserveAspectRatio="xMinYMid meet" aria-hidden="true">'+dots+'</svg>';
     b.setAttribute("aria-label", SCALES[k].car+", scala "+SCALES[k].mus);
-    b.addEventListener("click",function(){ state.scale=k; state.prev=null; markScales(); refresh(); previewKey(); });
+    b.addEventListener("click",function(){
+      if(state.scale===k){ previewKey(); return; }
+      var oldK=keyChords(); state.scale=k; state.prev=null;
+      var moved=remapGiro(oldK, keyChords());
+      markScales(); refresh(); previewKey();
+      if(moved) giroToast("Il giro ora segue i gradi di "+keyLabel()+".");
+    });
     scalesEl.appendChild(b);
   });
   function markScales(){ [].forEach.call(scalesEl.children,function(c){ var on=c.dataset.scale===state.scale; c.classList.toggle("on",on); c.setAttribute("aria-pressed",on?"true":"false"); }); }
